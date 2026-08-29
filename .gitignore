@@ -141,3 +141,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Team Orbit
+api/uploads/*
+!api/uploads/.gitkeep
+api/prisma/*.db
+api/prisma/*.db-journal
+*.db
+*.db-journal
