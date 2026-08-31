@@ -50,13 +50,25 @@ Articles with markdown `content`, `tags[]`, and optional cover. Creating one emi
 
 Same content model as news, kept as a separate resource for clearer product and API testing.
 
+### Forum
+
+Team discussion board with markdown posts and comments.
+
+| Capability | Notes |
+|------------|--------|
+| Posts | Any authenticated user; markdown body; images via `![](/uploads/...)` |
+| Comments | Top-level + one-level replies |
+| Votes | Up/down (or clear) on posts and comments; one vote per user |
+| Moderation | Authors edit/delete their own; Admin/Superuser can moderate any |
+| Notifications | Emitted on new post and new comment |
+
 ### Uploads
 
-Authenticated image upload; returns a public path like `/uploads/<uuid>.jpg` for use as covers or avatars.
+Authenticated image upload; returns a public path like `/uploads/<uuid>.jpg` for use as covers, avatars, or markdown embeds.
 
 ### Notifications
 
-- Persisted when announcements, events, news, or blog posts are created
+- Persisted when announcements, events, news, blog posts, or forum posts/comments are created
 - Live toast via Socket.io `notification:new`
 - List + mark-read over REST
 
@@ -72,6 +84,7 @@ All content and user routes (except register/login) require a Bearer JWT unless 
 | Events | GET/POST/PATCH/DELETE | `/events` |
 | News | GET/POST/PATCH/DELETE | `/news` |
 | Blog | GET/POST/PATCH/DELETE | `/blog-posts` |
+| Forum | GET/POST/PATCH/DELETE posts & comments, PUT votes | `/forum-posts`, `/forum-comments` |
 | Uploads | POST | `/uploads` |
 | Notifications | GET list, POST `:id/read` | `/notifications` |
 | Health | GET | `/health` |
@@ -93,6 +106,8 @@ Interactive OpenAPI docs: http://localhost:3000/api
 | `/events` | List + create with datetime-local + cover |
 | `/news` | Markdown news CRUD |
 | `/blog` | Markdown blog CRUD |
+| `/forum` | Forum list + create |
+| `/forum/$postId` | Post detail, comments, votes |
 | `/users` | Create user (Admin+), status changes |
 | `/settings` | Self-service profile + change password |
 | `/notifications` | Inbox + mark read + live toasts |

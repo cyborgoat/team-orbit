@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as ForumRouteImport } from './routes/forum'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -20,6 +21,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UploadsRouteImport } from './routes/uploads'
 import { Route as UsersRouteImport } from './routes/users'
+import { Route as ForumPostIdRouteImport } from './routes/forum.$postId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,6 +41,11 @@ const BlogRoute = BlogRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForumRoute = ForumRouteImport.update({
+  id: '/forum',
+  path: '/forum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -76,12 +83,18 @@ const UsersRoute = UsersRouteImport.update({
   path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumPostIdRoute = ForumPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => ForumRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/blog': typeof BlogRoute
   '/events': typeof EventsRoute
+  '/forum': typeof ForumRouteWithChildren
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
@@ -89,12 +102,14 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
+  '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/blog': typeof BlogRoute
   '/events': typeof EventsRoute
+  '/forum': typeof ForumRouteWithChildren
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
@@ -102,6 +117,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
+  '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,6 +125,7 @@ export interface FileRoutesById {
   '/announcements': typeof AnnouncementsRoute
   '/blog': typeof BlogRoute
   '/events': typeof EventsRoute
+  '/forum': typeof ForumRouteWithChildren
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
@@ -116,6 +133,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
+  '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,6 +142,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/blog'
     | '/events'
+    | '/forum'
     | '/login'
     | '/news'
     | '/notifications'
@@ -131,12 +150,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/uploads'
     | '/users'
+    | '/forum/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/announcements'
     | '/blog'
     | '/events'
+    | '/forum'
     | '/login'
     | '/news'
     | '/notifications'
@@ -144,12 +165,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/uploads'
     | '/users'
+    | '/forum/$postId'
   id:
     | '__root__'
     | '/'
     | '/announcements'
     | '/blog'
     | '/events'
+    | '/forum'
     | '/login'
     | '/news'
     | '/notifications'
@@ -157,6 +180,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/uploads'
     | '/users'
+    | '/forum/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -164,6 +188,7 @@ export interface RootRouteChildren {
   AnnouncementsRoute: typeof AnnouncementsRoute
   BlogRoute: typeof BlogRoute
   EventsRoute: typeof EventsRoute
+  ForumRoute: typeof ForumRouteWithChildren
   LoginRoute: typeof LoginRoute
   NewsRoute: typeof NewsRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -201,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forum': {
+      id: '/forum'
+      path: '/forum'
+      fullPath: '/forum'
+      preLoaderRoute: typeof ForumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -252,14 +284,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum/$postId': {
+      id: '/forum/$postId'
+      path: '/$postId'
+      fullPath: '/forum/$postId'
+      preLoaderRoute: typeof ForumPostIdRouteImport
+      parentRoute: typeof ForumRoute
+    }
   }
 }
+
+interface ForumRouteChildren {
+  ForumPostIdRoute: typeof ForumPostIdRoute
+}
+
+const ForumRouteChildren: ForumRouteChildren = {
+  ForumPostIdRoute: ForumPostIdRoute,
+}
+
+const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   BlogRoute: BlogRoute,
   EventsRoute: EventsRoute,
+  ForumRoute: ForumRouteWithChildren,
   LoginRoute: LoginRoute,
   NewsRoute: NewsRoute,
   NotificationsRoute: NotificationsRoute,

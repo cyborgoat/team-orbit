@@ -88,7 +88,14 @@ Username is read-only. Role and status stay admin-managed on **Users**.
 
 ### Uploads
 
-Use **Uploads** to verify `POST /uploads`, or attach a cover from Events / News / Blog dialogs. Returned paths are served from the API as `/uploads/...`.
+Use **Uploads** to verify `POST /uploads`, or attach a cover from Events / News / Blog dialogs. Forum posts/comments use **Insert image** to embed markdown `![](/uploads/...)`. Returned paths are served from the API as `/uploads/...`.
+
+### Forum
+
+1. Sign in → **Forum** → **New post** (markdown + optional images)  
+2. Open a post → upvote/downvote, add a comment, or reply to a top-level comment  
+3. Authors (or Admin+) can delete their posts/comments  
+4. Creating a post or comment emits a live notification  
 
 ## API exploration
 

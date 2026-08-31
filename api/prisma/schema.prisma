@@ -33,11 +33,15 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  events         Event[]
-  announcements  Announcement[]
-  news           News[]
-  blogPosts      BlogPost[]
-  notificationReads NotificationRead[]
+  events              Event[]
+  announcements       Announcement[]
+  news                News[]
+  blogPosts           BlogPost[]
+  notificationReads   NotificationRead[]
+  forumPosts          ForumPost[]
+  forumComments       ForumComment[]
+  forumPostVotes      ForumPostVote[]
+  forumCommentVotes   ForumCommentVote[]
 }
 
 model Event {
@@ -108,4 +112,61 @@ model NotificationRead {
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   @@unique([userId, notificationId])
+}
+
+model ForumPost {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  score     Int      @default(0)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments ForumComment[]
+  votes    ForumPostVote[]
+}
+
+model ForumComment {
+  id        String   @id @default(uuid())
+  content   String
+  score     Int      @default(0)
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    ForumComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   ForumComment[] @relation("CommentReplies")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  votes ForumCommentVote[]
+}
+
+model ForumPostVote {
+  id        String    @id @default(uuid())
+  value     Int
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, postId])
+}
+
+model ForumCommentVote {
+  id        String       @id @default(uuid())
+  value     Int
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   ForumComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, commentId])
 }

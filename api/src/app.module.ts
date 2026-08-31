@@ -10,6 +10,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { AuthModule } from './auth/auth.module';
 import { BlogModule } from './blog/blog.module';
 import { EventsModule } from './events/events.module';
+import { ForumModule } from './forum/forum.module';
 import { HealthModule } from './health/health.module';
 import { NewsModule } from './news/news.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -47,6 +48,7 @@ import { UsersModule } from './users/users.module';
     EventsModule,
     NewsModule,
     BlogModule,
+    ForumModule,
     UploadsModule,
     NotificationsModule,
     HealthModule,

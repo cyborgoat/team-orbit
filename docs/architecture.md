@@ -32,6 +32,7 @@ api/src/
 ├── events/           Schedule + optional cover image
 ├── news/             Markdown articles + tags
 ├── blog/             Markdown posts + tags
+├── forum/            Discussion posts, comments, votes
 ├── uploads/          Multipart image upload
 ├── notifications/    Persist + Socket.io broadcast
 ├── health/           Liveness / DB check
@@ -57,6 +58,9 @@ Cross-cutting wiring lives in `app.module.ts`:
 | `Announcement` | Title, description, author |
 | `News` | Markdown `content`, tags (JSON string), optional cover |
 | `BlogPost` | Same shape as news for long-form posts |
+| `ForumPost` | Markdown discussion post with denormalized `score` |
+| `ForumComment` | Comment on a post; optional `parentId` for one-level replies |
+| `ForumPostVote` / `ForumCommentVote` | One vote per user (`1` or `-1`) |
 | `Notification` | Persisted feed entries for reconnect |
 | `NotificationRead` | Per-user read receipts |
 
@@ -100,7 +104,7 @@ Realtime is best-effort for connected clients; the REST list is the source of tr
 
 - `POST /uploads` (authenticated) accepts images up to ~5MB.
 - Files land under `api/uploads/` (gitignored) and are served at `/uploads/<filename>`.
-- Content modules store returned URLs on `coverImageUrl` / `avatarUrl` fields.
+- Content modules store returned URLs on `coverImageUrl` / `avatarUrl` fields, or embed them in markdown (`![](/uploads/...)`) for forum posts/comments.
 - No S3 in v1 — backup the folder with the SQLite file.
 
 ## Web architecture (test UI)
@@ -109,7 +113,7 @@ Realtime is best-effort for connected clients; the REST list is the source of tr
 - **TanStack Query** — server state per feature page
 - **shadcn/ui** — Card, Dialog, Table, Select, Empty, Sheet, etc.
 - **Auth context** — token in `localStorage`, logout clears cache and disconnects the socket
-- Feature pages stay **separate** (announcements ≠ news ≠ blog) so API testing is not entangled
+- Feature pages stay **separate** (announcements ≠ news ≠ blog ≠ forum) so API testing is not entangled
 
 ## Non-goals (v1)
 

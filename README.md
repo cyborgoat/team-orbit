@@ -1,6 +1,6 @@
 # Team Orbit
 
-Team Orbit is a backend-first app for managing ~100 team members, events, announcements, markdown news/blog posts, uploads, and live notifications.
+Team Orbit is a backend-first app for managing ~100 team members, events, announcements, markdown news/blog posts, a discussion forum, uploads, and live notifications.
 
 It ships as a **NestJS modular monolith** plus a **minimal test UI** (TanStack + shadcn) so you can exercise the API before building your own frontend.
 

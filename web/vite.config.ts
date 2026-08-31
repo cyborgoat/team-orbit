@@ -27,6 +27,8 @@ export default defineConfig({
       '/announcements': 'http://localhost:3000',
       '/news': 'http://localhost:3000',
       '/blog-posts': 'http://localhost:3000',
+      '/forum-posts': 'http://localhost:3000',
+      '/forum-comments': 'http://localhost:3000',
       '/uploads': 'http://localhost:3000',
       '/notifications': 'http://localhost:3000',
       '/health': 'http://localhost:3000',

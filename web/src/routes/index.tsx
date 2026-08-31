@@ -4,6 +4,7 @@ import {
   CalendarDays,
   FileText,
   Megaphone,
+  MessageSquare,
   Newspaper,
   Settings,
   Users,
@@ -49,6 +50,12 @@ const shortcuts = [
     title: 'Blog',
     description: 'Long-form markdown posts',
     icon: FileText,
+  },
+  {
+    to: '/forum',
+    title: 'Forum',
+    description: 'Discussions, comments, and votes',
+    icon: MessageSquare,
   },
   {
     to: '/users',
