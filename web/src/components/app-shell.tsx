@@ -10,11 +10,12 @@ import {
   Megaphone,
   Menu,
   Newspaper,
+  Settings,
   Users,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useNotificationsSocket } from '@/hooks/use-notifications-socket'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -37,6 +38,7 @@ const navItems = [
   { to: '/users', label: 'Users', icon: Users, exact: false },
   { to: '/notifications', label: 'Notifications', icon: Bell, exact: false },
   { to: '/uploads', label: 'Uploads', icon: ImageUp, exact: false },
+  { to: '/settings', label: 'Settings', icon: Settings, exact: false },
 ] as const
 
 function NavLinks({
@@ -117,13 +119,20 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
       </div>
       <Separator />
       <div className="flex items-center gap-3">
-        <Avatar size="sm">
-          <AvatarFallback>{initials}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{user?.fullName}</p>
-          <p className="truncate text-xs text-muted-foreground">{user?.role}</p>
-        </div>
+        <Link
+          to="/settings"
+          onClick={onNavigate}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-sidebar-accent/70"
+        >
+          <Avatar size="sm">
+            {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt="" /> : null}
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">{user?.fullName}</p>
+            <p className="truncate text-xs text-muted-foreground">{user?.role}</p>
+          </div>
+        </Link>
         <Button
           variant="ghost"
           size="icon-sm"

@@ -71,6 +71,14 @@ Logout clears the token, React Query cache, and Socket.io connection, then retur
 3. Set role (`USER` / `ADMIN`; Superuser-only for `SUPERUSER`) and status (default `ACTIVE`)  
 4. Share credentials; they can sign in immediately  
 
+### Update your profile / password
+
+1. Sign in → **Settings** (or click your name/avatar in the sidebar)  
+2. Edit full name, email, and/or avatar → **Save profile** (`PATCH /auth/me`)  
+3. To change password: current + new + confirm → **Update password** (`POST /auth/change-password`)  
+
+Username is read-only. Role and status stay admin-managed on **Users**.
+
 ### Content + live notifications
 
 1. Keep two browsers (or one + Swagger) signed in  

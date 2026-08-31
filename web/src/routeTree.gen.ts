@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UploadsRouteImport } from './routes/uploads'
 import { Route as UsersRouteImport } from './routes/users'
 
@@ -60,6 +61,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadsRoute = UploadsRouteImport.update({
   id: '/uploads',
   path: '/uploads',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/uploads': typeof UploadsRoute
   '/users': typeof UsersRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/notifications'
     | '/register'
+    | '/settings'
     | '/uploads'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/notifications'
     | '/register'
+    | '/settings'
     | '/uploads'
     | '/users'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/notifications'
     | '/register'
+    | '/settings'
     | '/uploads'
     | '/users'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   NotificationsRoute: typeof NotificationsRoute
   RegisterRoute: typeof RegisterRoute
+  SettingsRoute: typeof SettingsRoute
   UploadsRoute: typeof UploadsRoute
   UsersRoute: typeof UsersRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/uploads': {
       id: '/uploads'
       path: '/uploads'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   NotificationsRoute: NotificationsRoute,
   RegisterRoute: RegisterRoute,
+  SettingsRoute: SettingsRoute,
   UploadsRoute: UploadsRoute,
   UsersRoute: UsersRoute,
 }

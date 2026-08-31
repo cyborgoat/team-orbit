@@ -94,3 +94,65 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  .markdown-body {
+    :where(h1, h2, h3, h4, h5, h6) {
+      @apply mt-4 mb-2 font-heading font-semibold tracking-tight first:mt-0;
+    }
+    :where(h1) {
+      @apply text-2xl;
+    }
+    :where(h2) {
+      @apply text-xl;
+    }
+    :where(h3) {
+      @apply text-lg;
+    }
+    :where(p) {
+      @apply my-3;
+    }
+    :where(a) {
+      @apply text-primary underline underline-offset-3 hover:text-foreground;
+    }
+    :where(ul) {
+      @apply my-3 list-disc space-y-1 pl-5;
+    }
+    :where(ol) {
+      @apply my-3 list-decimal space-y-1 pl-5;
+    }
+    :where(li) {
+      @apply leading-relaxed;
+    }
+    :where(blockquote) {
+      @apply my-3 border-l-2 border-border pl-3 text-muted-foreground italic;
+    }
+    :where(hr) {
+      @apply my-6 border-border;
+    }
+    :where(code) {
+      @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
+    }
+    :where(pre) {
+      @apply my-3 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs leading-relaxed;
+    }
+    :where(pre code) {
+      @apply bg-transparent p-0;
+    }
+    :where(table) {
+      @apply my-3 w-full border-collapse text-sm;
+    }
+    :where(th, td) {
+      @apply border border-border px-2.5 py-1.5 text-left;
+    }
+    :where(th) {
+      @apply bg-muted font-medium;
+    }
+    :where(img) {
+      @apply my-3 max-w-full rounded-lg;
+    }
+    :where(input[type='checkbox']) {
+      @apply mr-2 align-middle;
+    }
+  }
+}

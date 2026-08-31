@@ -4,6 +4,7 @@ import { Newspaper, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/image-upload'
+import { MarkdownPreview } from '@/components/markdown-preview'
 import { PageHeader } from '@/components/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -59,6 +60,7 @@ function NewsPage() {
     queryFn: () => api<{ items: Item[] }>('/news'),
   })
   const [open, setOpen] = useState(false)
+  const [preview, setPreview] = useState<Item | null>(null)
   const [form, setForm] = useState({
     title: '',
     content: '',
@@ -199,7 +201,11 @@ function NewsPage() {
             </TableHeader>
             <TableBody>
               {items.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  className="cursor-pointer"
+                  onClick={() => setPreview(item)}
+                >
                   <TableCell>
                     <div className="font-medium">{item.title}</div>
                     <pre className="mt-1 max-w-md truncate font-mono text-xs text-muted-foreground">
@@ -223,7 +229,8 @@ function NewsPage() {
                       variant="ghost"
                       size="icon-sm"
                       aria-label="Delete"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation()
                         if (confirm('Delete this article?')) remove.mutate(item.id)
                       }}
                     >
@@ -236,6 +243,18 @@ function NewsPage() {
           </Table>
         </div>
       )}
+
+      <MarkdownPreview
+        open={preview !== null}
+        onOpenChange={(next) => {
+          if (!next) setPreview(null)
+        }}
+        title={preview?.title ?? ''}
+        content={preview?.content ?? ''}
+        tags={preview?.tags}
+        coverImageUrl={preview?.coverImageUrl}
+        createdAt={preview?.createdAt}
+      />
     </div>
   )
 }

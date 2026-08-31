@@ -24,6 +24,8 @@ Manage team members with roles and lifecycle status.
 | Action | SUPERUSER | ADMIN | USER |
 |--------|-----------|-------|------|
 | Login (if ACTIVE) | yes | yes | yes |
+| Update own profile (name, email, avatar) | yes | yes | yes |
+| Change own password | yes | yes | yes |
 | List / create / update / soft-delete users | yes | yes* | no |
 | Assign SUPERUSER role | yes | no | no |
 | Modify another SUPERUSER | yes | no | no |
@@ -64,7 +66,7 @@ All content and user routes (except register/login) require a Bearer JWT unless 
 
 | Area | Methods | Path prefix |
 |------|---------|-------------|
-| Auth | POST register/login, GET me | `/auth` |
+| Auth | POST register/login, GET/PATCH me, POST change-password | `/auth` |
 | Users | GET/POST/PATCH/DELETE | `/users` |
 | Announcements | GET/POST/PATCH/DELETE | `/announcements` |
 | Events | GET/POST/PATCH/DELETE | `/events` |
@@ -92,6 +94,7 @@ Interactive OpenAPI docs: http://localhost:3000/api
 | `/news` | Markdown news CRUD |
 | `/blog` | Markdown blog CRUD |
 | `/users` | Create user (Admin+), status changes |
+| `/settings` | Self-service profile + change password |
 | `/notifications` | Inbox + mark read + live toasts |
 | `/uploads` | Standalone image upload check |
 

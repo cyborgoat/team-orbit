@@ -5,6 +5,7 @@ import {
   FileText,
   Megaphone,
   Newspaper,
+  Settings,
   Users,
 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
@@ -60,6 +61,12 @@ const shortcuts = [
     title: 'Notifications',
     description: 'Live feed from content creates',
     icon: Bell,
+  },
+  {
+    to: '/settings',
+    title: 'Settings',
+    description: 'Update your profile and password',
+    icon: Settings,
   },
 ] as const
 
