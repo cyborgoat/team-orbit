@@ -1,16 +1,18 @@
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { NotificationsService } from './notifications.service';
+import {
+  NotificationReadDto,
+  PaginatedNotificationsDto,
+} from './dto/notification.dto';
 
 @ApiTags('notifications')
 @ApiBearerAuth()
@@ -20,6 +22,7 @@ export class NotificationsController {
   constructor(private notifications: NotificationsService) {}
 
   @Get()
+  @ApiOkResponse({ type: PaginatedNotificationsDto })
   list(
     @CurrentUser() user: { id: string },
     @Query() query: PaginationQueryDto,
@@ -28,10 +31,8 @@ export class NotificationsController {
   }
 
   @Post(':id/read')
-  markRead(
-    @CurrentUser() user: { id: string },
-    @Param('id') id: string,
-  ) {
+  @ApiCreatedResponse({ type: NotificationReadDto })
+  markRead(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     return this.notifications.markRead(user.id, id);
   }
 }

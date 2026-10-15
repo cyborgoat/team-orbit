@@ -6,6 +6,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { UserDto } from '../../users/dto/user.dto';
 
 export class LoginDto {
   @ApiProperty({ example: 'admin@teamorbit.local' })
@@ -68,4 +69,12 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(6)
   newPassword: string;
+}
+
+export class LoginResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty({ type: UserDto })
+  user: UserDto;
 }

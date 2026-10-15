@@ -9,14 +9,24 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import {
+  CreateUserDto,
+  PaginatedUsersDto,
+  UpdateUserDto,
+  UserDto,
+} from './dto/user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -28,27 +38,28 @@ export class UsersController {
 
   @Get()
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiOkResponse({ type: PaginatedUsersDto })
   findAll(@Query() query: PaginationQueryDto) {
     return this.users.findAll(query.page, query.limit, query.q, query.status);
   }
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiOkResponse({ type: UserDto })
   findOne(@Param('id') id: string) {
     return this.users.findOne(id);
   }
 
   @Post()
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  create(
-    @Body() dto: CreateUserDto,
-    @CurrentUser() user: { role: Role },
-  ) {
+  @ApiCreatedResponse({ type: UserDto })
+  create(@Body() dto: CreateUserDto, @CurrentUser() user: { role: Role }) {
     return this.users.create(dto, user.role);
   }
 
   @Patch(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiOkResponse({ type: UserDto })
   update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDto,
@@ -59,10 +70,8 @@ export class UsersController {
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { role: Role },
-  ) {
+  @ApiOkResponse({ type: UserDto })
+  remove(@Param('id') id: string, @CurrentUser() user: { role: Role }) {
     return this.users.remove(id, user.role);
   }
 }

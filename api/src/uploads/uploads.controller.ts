@@ -7,12 +7,19 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UploadResultDto } from './dto/upload.dto';
 
 const uploadRoot = join(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
 if (!existsSync(uploadRoot)) {
@@ -55,6 +62,7 @@ export class UploadsController {
       },
     }),
   )
+  @ApiCreatedResponse({ type: UploadResultDto })
   upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is required');

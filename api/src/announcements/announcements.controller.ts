@@ -9,7 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -18,7 +23,10 @@ import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AnnouncementsService } from './announcements.service';
 import {
+  AnnouncementDto,
+  AnnouncementRecordDto,
   CreateAnnouncementDto,
+  PaginatedAnnouncementsDto,
   UpdateAnnouncementDto,
 } from './dto/announcement.dto';
 
@@ -30,17 +38,20 @@ export class AnnouncementsController {
   constructor(private announcements: AnnouncementsService) {}
 
   @Get()
+  @ApiOkResponse({ type: PaginatedAnnouncementsDto })
   findAll(@Query() query: PaginationQueryDto) {
     return this.announcements.findAll(query.page, query.limit, query.q);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: AnnouncementDto })
   findOne(@Param('id') id: string) {
     return this.announcements.findOne(id);
   }
 
   @Post()
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiCreatedResponse({ type: AnnouncementDto })
   create(
     @Body() dto: CreateAnnouncementDto,
     @CurrentUser() user: { id: string },
@@ -50,12 +61,14 @@ export class AnnouncementsController {
 
   @Patch(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiOkResponse({ type: AnnouncementDto })
   update(@Param('id') id: string, @Body() dto: UpdateAnnouncementDto) {
     return this.announcements.update(id, dto);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
+  @ApiOkResponse({ type: AnnouncementRecordDto })
   remove(@Param('id') id: string) {
     return this.announcements.remove(id);
   }

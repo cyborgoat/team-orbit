@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { PageMetaDto } from '../../common/dto/response.dto';
 import { Type } from 'class-transformer';
 import {
   IsIn,
@@ -15,7 +16,9 @@ export class CreateForumPostDto {
   @MinLength(1)
   title: string;
 
-  @ApiProperty({ description: 'Markdown body; embed images as ![](/uploads/...)' })
+  @ApiProperty({
+    description: 'Markdown body; embed images as ![](/uploads/...)',
+  })
   @IsString()
   @MinLength(1)
   content: string;
@@ -53,4 +56,125 @@ export class VoteDto {
   @IsInt()
   @IsIn([1, -1, 0])
   value: 1 | -1 | 0;
+}
+
+export class ForumAuthorDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  fullName: string;
+
+  @ApiProperty({ type: String, nullable: true })
+  avatarUrl: string | null;
+}
+
+/** A post as returned by PATCH (no vote or comment info). */
+export class ForumPostDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty({ description: 'Markdown body' })
+  content: string;
+
+  @ApiProperty()
+  score: number;
+
+  @ApiProperty()
+  authorId: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  @ApiProperty({ type: ForumAuthorDto })
+  author: ForumAuthorDto;
+}
+
+export class ForumPostSummaryDto extends ForumPostDto {
+  @ApiProperty()
+  commentCount: number;
+}
+
+export class ForumPostCreatedDto extends ForumPostSummaryDto {
+  @ApiProperty({
+    description: 'Current user vote: 1, -1 or 0',
+    enum: [1, -1, 0],
+  })
+  myVote: number;
+}
+
+export class PaginatedForumPostsDto extends PageMetaDto {
+  @ApiProperty({ type: [ForumPostSummaryDto] })
+  items: ForumPostSummaryDto[];
+}
+
+/** A comment as returned by PATCH (no vote or replies info). */
+export class ForumCommentBaseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty({ description: 'Markdown body' })
+  content: string;
+
+  @ApiProperty()
+  score: number;
+
+  @ApiProperty()
+  postId: string;
+
+  @ApiProperty()
+  authorId: string;
+
+  @ApiProperty({ type: String, nullable: true })
+  parentId: string | null;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  @ApiProperty({ type: ForumAuthorDto })
+  author: ForumAuthorDto;
+}
+
+export class ForumReplyDto extends ForumCommentBaseDto {
+  @ApiProperty({
+    description: 'Current user vote: 1, -1 or 0',
+    enum: [1, -1, 0],
+  })
+  myVote: number;
+}
+
+export class ForumCommentDto extends ForumReplyDto {
+  @ApiProperty({ type: [ForumReplyDto] })
+  replies: ForumReplyDto[];
+}
+
+export class ForumPostDetailDto extends ForumPostDto {
+  @ApiProperty({
+    description: 'Current user vote: 1, -1 or 0',
+    enum: [1, -1, 0],
+  })
+  myVote: number;
+
+  @ApiProperty({ type: [ForumCommentDto], description: 'Top-level comments' })
+  comments: ForumCommentDto[];
+}
+
+export class VoteResultDto {
+  @ApiProperty()
+  score: number;
+
+  @ApiProperty({ enum: [1, -1, 0] })
+  myVote: number;
 }
