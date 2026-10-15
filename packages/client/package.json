@@ -25,7 +25,7 @@
   },
   "scripts": {
     "generate": "openapi-typescript ../../openapi/openapi.json -o src/schema.d.ts",
-    "build": "npm run generate && tsc -p tsconfig.json",
+    "build": "npm run generate && tsc -p tsconfig.json && cp src/schema.d.ts dist/schema.d.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build"
   },
