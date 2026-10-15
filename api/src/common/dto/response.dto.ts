@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class OkDto {
   @ApiProperty({ example: true })
@@ -25,4 +25,18 @@ export class UserSummaryDto {
 
   @ApiProperty()
   fullName: string;
+}
+
+export class ErrorDto {
+  @ApiProperty({ example: 401 })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Error message, or a list of validation messages',
+    oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+  })
+  message: string | string[];
+
+  @ApiPropertyOptional({ example: 'Unauthorized' })
+  error?: string;
 }

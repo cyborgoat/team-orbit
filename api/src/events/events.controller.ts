@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,7 +30,9 @@ import {
   UpdateEventDto,
 } from './dto/event.dto';
 import { EventsService } from './events.service';
+import { ErrorDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('events')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

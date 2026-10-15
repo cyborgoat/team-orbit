@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -28,7 +29,9 @@ import {
   UserDto,
 } from './dto/user.dto';
 import { UsersService } from './users.service';
+import { ErrorDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

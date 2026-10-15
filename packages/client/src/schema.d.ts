@@ -408,6 +408,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ErrorDto: {
+            /** @example 401 */
+            statusCode: number;
+            /** @description Error message, or a list of validation messages */
+            message: string | string[];
+            /** @example Unauthorized */
+            error?: string;
+        };
         RegisterDto: {
             username: string;
             fullName: string;
@@ -928,6 +936,14 @@ export interface operations {
                     "application/json": components["schemas"]["UserDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AuthController_login: {
@@ -951,6 +967,14 @@ export interface operations {
                     "application/json": components["schemas"]["LoginResponseDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AuthController_me: {
@@ -968,6 +992,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -993,6 +1025,14 @@ export interface operations {
                     "application/json": components["schemas"]["UserDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AuthController_changePassword: {
@@ -1014,6 +1054,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1041,6 +1089,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedUsersDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     UsersController_create: {
@@ -1064,6 +1120,14 @@ export interface operations {
                     "application/json": components["schemas"]["UserDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     UsersController_findOne: {
@@ -1085,6 +1149,14 @@ export interface operations {
                     "application/json": components["schemas"]["UserDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     UsersController_remove: {
@@ -1104,6 +1176,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1131,6 +1211,14 @@ export interface operations {
                     "application/json": components["schemas"]["UserDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AnnouncementsController_findAll: {
@@ -1156,6 +1244,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedAnnouncementsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AnnouncementsController_create: {
@@ -1179,6 +1275,14 @@ export interface operations {
                     "application/json": components["schemas"]["AnnouncementDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AnnouncementsController_findOne: {
@@ -1200,6 +1304,14 @@ export interface operations {
                     "application/json": components["schemas"]["AnnouncementDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     AnnouncementsController_remove: {
@@ -1219,6 +1331,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnnouncementRecordDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1246,6 +1366,14 @@ export interface operations {
                     "application/json": components["schemas"]["AnnouncementDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NotificationsController_list: {
@@ -1271,6 +1399,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedNotificationsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NotificationsController_markRead: {
@@ -1290,6 +1426,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationReadDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1317,6 +1461,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedEventsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     EventsController_create: {
@@ -1340,6 +1492,14 @@ export interface operations {
                     "application/json": components["schemas"]["EventDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     EventsController_findOne: {
@@ -1361,6 +1521,14 @@ export interface operations {
                     "application/json": components["schemas"]["EventDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     EventsController_remove: {
@@ -1380,6 +1548,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EventRecordDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1407,6 +1583,14 @@ export interface operations {
                     "application/json": components["schemas"]["EventDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NewsController_findAll: {
@@ -1432,6 +1616,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedNewsListDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NewsController_create: {
@@ -1455,6 +1647,14 @@ export interface operations {
                     "application/json": components["schemas"]["NewsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NewsController_findOne: {
@@ -1476,6 +1676,14 @@ export interface operations {
                     "application/json": components["schemas"]["NewsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     NewsController_remove: {
@@ -1495,6 +1703,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NewsDeletedDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1522,6 +1738,14 @@ export interface operations {
                     "application/json": components["schemas"]["NewsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     BlogController_findAll: {
@@ -1547,6 +1771,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedBlogPostListDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     BlogController_create: {
@@ -1570,6 +1802,14 @@ export interface operations {
                     "application/json": components["schemas"]["BlogPostDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     BlogController_findOne: {
@@ -1591,6 +1831,14 @@ export interface operations {
                     "application/json": components["schemas"]["BlogPostDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     BlogController_remove: {
@@ -1610,6 +1858,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BlogPostDeletedDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1637,6 +1893,14 @@ export interface operations {
                     "application/json": components["schemas"]["BlogPostDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_findAll: {
@@ -1662,6 +1926,14 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedForumPostsDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_create: {
@@ -1685,6 +1957,14 @@ export interface operations {
                     "application/json": components["schemas"]["ForumPostCreatedDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_findOne: {
@@ -1706,6 +1986,14 @@ export interface operations {
                     "application/json": components["schemas"]["ForumPostDetailDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_remove: {
@@ -1725,6 +2013,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1752,6 +2048,14 @@ export interface operations {
                     "application/json": components["schemas"]["ForumPostDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_createComment: {
@@ -1775,6 +2079,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ForumCommentDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1802,6 +2114,14 @@ export interface operations {
                     "application/json": components["schemas"]["VoteResultDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_removeComment: {
@@ -1821,6 +2141,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1848,6 +2176,14 @@ export interface operations {
                     "application/json": components["schemas"]["ForumCommentBaseDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     ForumController_voteComment: {
@@ -1871,6 +2207,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VoteResultDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };
@@ -1899,6 +2243,14 @@ export interface operations {
                     "application/json": components["schemas"]["UploadResultDto"];
                 };
             };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
         };
     };
     HealthController_check: {
@@ -1916,6 +2268,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthDto"];
+                };
+            };
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
                 };
             };
         };

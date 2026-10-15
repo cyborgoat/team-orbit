@@ -12,6 +12,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
@@ -20,12 +21,14 @@ import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UploadResultDto } from './dto/upload.dto';
+import { ErrorDto } from '../common/dto/response.dto';
 
 const uploadRoot = join(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
 if (!existsSync(uploadRoot)) {
   mkdirSync(uploadRoot, { recursive: true });
 }
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('uploads')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

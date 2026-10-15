@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,7 +30,9 @@ import {
   UpdateNewsDto,
 } from './dto/news.dto';
 import { NewsService } from './news.service';
+import { ErrorDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('news')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

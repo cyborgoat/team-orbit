@@ -13,6 +13,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -35,8 +36,9 @@ import {
   VoteResultDto,
 } from './dto/forum.dto';
 import { ForumService } from './forum.service';
-import { OkDto } from '../common/dto/response.dto';
+import { ErrorDto, OkDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('forum-posts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

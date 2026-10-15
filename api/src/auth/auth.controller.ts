@@ -2,6 +2,7 @@ import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -17,8 +18,9 @@ import {
 } from './dto/auth.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { OkDto } from '../common/dto/response.dto';
+import { ErrorDto, OkDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {

@@ -1,7 +1,19 @@
 {
   "name": "@goatcheese/team-orbit-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Typed client for the Team Orbit API",
+  "keywords": [
+    "team-orbit",
+    "api-client",
+    "openapi",
+    "typescript",
+    "fetch",
+    "sdk"
+  ],
+  "homepage": "https://github.com/cyborgoat/team-orbit/tree/main/packages/client#readme",
+  "bugs": {
+    "url": "https://github.com/cyborgoat/team-orbit/issues"
+  },
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
@@ -12,6 +24,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "files": [
     "dist"
@@ -25,7 +40,7 @@
     }
   },
   "scripts": {
-    "generate": "openapi-typescript ../../openapi/openapi.json -o src/schema.d.ts",
+    "generate": "openapi-typescript ../../openapi/openapi.json -o src/schema.d.ts && node scripts/readme-reference.mjs",
     "build": "npm run generate && tsc -p tsconfig.json && cp src/schema.d.ts dist/schema.d.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build"

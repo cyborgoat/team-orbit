@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiDefaultResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,7 +30,9 @@ import {
   PaginatedBlogPostListDto,
   UpdateBlogPostDto,
 } from './dto/blog.dto';
+import { ErrorDto } from '../common/dto/response.dto';
 
+@ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('blog-posts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
