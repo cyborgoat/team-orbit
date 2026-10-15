@@ -1,5 +1,5 @@
 {
-  "name": "@team-orbit/client",
+  "name": "@goatcheese/team-orbit-client",
   "version": "0.1.0",
   "description": "Typed client for the Team Orbit API",
   "type": "module",
@@ -7,6 +7,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
+    "url": "git+https://github.com/cyborgoat/team-orbit.git",
     "directory": "packages/client"
   },
   "publishConfig": {

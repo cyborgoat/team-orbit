@@ -1,10 +1,10 @@
-# @team-orbit/client
+# @goatcheese/team-orbit-client
 
 Typed client for the Team Orbit API, generated from `../../openapi/openapi.json`.
 Requests and responses are fully typed.
 
 ```ts
-import { createTeamOrbitClient } from '@team-orbit/client';
+import { createTeamOrbitClient } from '@goatcheese/team-orbit-client';
 
 const orbit = createTeamOrbitClient({
   baseUrl: 'https://orbit.example.com',
@@ -35,5 +35,8 @@ spec or `src/schema.d.ts` differ, so it can run in CI.
 
 ## Publishing
 
-`prepublishOnly` rebuilds. Make sure the `@team-orbit` npm scope exists (or rename
-the package) before `npm publish`.
+`prepublishOnly` rebuilds. Published to the `@goatcheese` npm org:
+
+```bash
+npm publish --registry https://registry.npmjs.org
+```
