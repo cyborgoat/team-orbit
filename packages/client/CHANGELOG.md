@@ -1,14 +1,16 @@
 # Changelog
 
-## 0.3.0 — 2026-10-16
+## 0.1.0 — 2026-10-16
 
-- Support username/password login while retaining existing email/password calls.
-- Add an optional explicit `LoginMethod` (`username` or `email`) to the login helper.
-  Without it, identifiers containing `@` use email login.
-- Allow registration and admin-created users without email.
-- Return `User.email` as `string | null`; consumers must handle missing email.
-- Allow profile updates to clear email with `null` or an empty string.
-- Refresh generated OpenAPI types, usage examples, and auth compatibility tests.
+Initial release of the typed Team Orbit REST client.
 
-The API must apply migration `20261016000000_optional_user_email` before using
-accounts without email. Self-registration still requires admin activation.
+- Typed resource helpers and generated OpenAPI request/response types for `/api` endpoints.
+- Username or email login, optional account email, profile updates, and user administration.
+- Events, announcements, news, blog posts, forum discussions, comments, and voting.
+- Paginated list helpers and async iteration over supported collections.
+- Image uploads with absolute public URLs and a public avatar preset catalogue.
+- Notification list/read helpers and consistent API error handling.
+- Custom fetch and token providers, with cancellation support for profile and CRUD list reads.
+
+Use this release with the matching Team Orbit API. Realtime notifications use
+Socket.IO separately from this REST client.

@@ -272,8 +272,8 @@ under `components['schemas']`. List endpoints accept `page`, `limit` (max 100) a
 ## Not included
 
 - **Realtime notifications.** The API broadcasts new notifications over Socket.IO. Use
-  `socket.io-client` for that. This package covers the REST API only (`GET /notifications` and
-  `POST /notifications/{id}/read` are included).
+  `socket.io-client` for that. This package covers the REST API only (`GET /api/notifications` and
+  `POST /api/notifications/{id}/read` are included).
 - **Per-status error types.** Every failure shares one `error` type, so use `response.status`
   (401, 403, 404, ...) to tell them apart.
 
@@ -281,9 +281,9 @@ under `components['schemas']`. List endpoints accept `page`, `limit` (max 100) a
 
 The client is generated from the API's OpenAPI spec, so new endpoints and fields show up
 in the next release of this package. Pin the version if your deployed API lags behind.
-Version 0.3.0 adds username login and makes `User.email` nullable; consumers must handle `null`. Existing
-`login(email, password)` calls remain supported. Apply the API's optional-email
-migration before using registration without email. See [0.3.0 release notes](CHANGELOG.md).
+Version 0.1.0 is the initial release and targets the current `/api` contract. It includes
+username/email login, nullable account email, avatar presets, and absolute upload URLs.
+See the [0.1.0 release notes](CHANGELOG.md).
 
 ## Contributing / regenerating
 
