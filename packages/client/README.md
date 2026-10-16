@@ -4,9 +4,9 @@ Typed TypeScript client for the **Team Orbit API**, a team hub with members, eve
 announcements, news, blog posts, a forum with comments and votes, and notifications.
 
 - Fully typed requests **and** responses, generated from the API's OpenAPI spec
-- Tiny: a thin wrapper over [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch/), with no codegen step for you
+- Ergonomic helpers (`orbit.news.list()`, `orbit.auth.login()`, ...) on top of [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch/), with no codegen step for you
 - Works in browsers, Node 18+, Deno, Bun and edge runtimes (anything with `fetch`)
-- Handles the `Authorization: Bearer` header for you
+- Handles login, token storage and the `Authorization: Bearer` header for you
 
 > This package is only the client. You need a running Team Orbit API
 > ([source](https://github.com/cyborgoat/team-orbit)) to call.
@@ -22,25 +22,54 @@ npm install @goatcheese/team-orbit-client
 ```ts
 import { createTeamOrbitClient } from '@goatcheese/team-orbit-client';
 
-const orbit = createTeamOrbitClient({
-  baseUrl: 'https://orbit.example.com',
-  token: () => localStorage.getItem('token') ?? undefined,
-});
+const orbit = createTeamOrbitClient({ baseUrl: 'https://orbit.example.com' });
 
-// 1. Log in and keep the token
-const login = await orbit.POST('/auth/login', {
-  body: { email: 'admin@teamorbit.local', password: 'password123' },
-});
-if (login.error) throw new Error(String(login.error.message));
-localStorage.setItem('token', login.data.accessToken);
+// Log in once: the token is remembered for every later call
+await orbit.auth.login('admin@teamorbit.local', 'password123');
 
-// 2. Call any endpoint, with typed params and results
-const posts = await orbit.GET('/forum-posts', {
-  params: { query: { page: 1, limit: 10, q: 'welcome' } },
-});
-posts.data?.items[0].commentCount; // number
-posts.data?.items[0].author.username; // string
+const { items } = await orbit.forum.listPosts({ page: 1, limit: 10, q: 'welcome' });
+items[0].commentCount; // number
+
+await orbit.news.create({ title: 'v2 released', content: '## Notes\n...', tags: ['release'] });
+await orbit.forum.votePost(items[0].id, 1); // 1 = up, -1 = down, 0 = clear
 ```
+
+Persisting the token (e.g. across page loads)? Pass `token: () => localStorage.getItem('token') ?? undefined`
+instead, or call `orbit.setToken(...)`. A token from `login()` / `setToken()` takes precedence over the option.
+
+## Helpers
+
+Every helper returns the parsed response body and **throws** a `TeamOrbitError` on non-2xx.
+All params, bodies and responses are typed from the OpenAPI spec.
+
+| Namespace | Methods |
+| --- | --- |
+| `orbit.auth` | `login(email, password)`, `register(body)`, `me()`, `updateMe(body)`, `changePassword(body)`, `logout()` |
+| `orbit.users`, `events`, `announcements`, `news`, `blogPosts` | `list(query?)`, `get(id)`, `create(body)`, `update(id, body)`, `delete(id)`, `iterate(query?)` |
+| `orbit.forum` | `listPosts`, `getPost`, `createPost`, `updatePost`, `deletePost`, `addComment(postId, body)`, `updateComment`, `deleteComment`, `votePost(id, value)`, `voteComment(id, value)` |
+| `orbit.notifications` | `list(query?)`, `markRead(id)` |
+| `orbit.uploads` | `upload(file, filename?)` |
+| `orbit.health()` | |
+
+```ts
+import { TeamOrbitError } from '@goatcheese/team-orbit-client';
+
+try {
+  await orbit.events.get(id);
+} catch (e) {
+  if (e instanceof TeamOrbitError && e.status === 404) console.log('no such event');
+  else throw e;
+}
+
+// Walk every page of a list without managing page numbers
+for await (const item of orbit.news.iterate({ tag: 'release' })) console.log(item.title);
+
+// Upload an image (JPEG/PNG/etc., max 5 MB); embed the url in Markdown as ![](url)
+const { url } = await orbit.uploads.upload(file);
+```
+
+Friendly types are exported too: `User`, `Role`, `UserStatus`, `Event`, `Announcement`, `News`,
+`BlogPost`, `ForumPost`, `ForumComment`, `Notification`.
 
 ## Options
 
@@ -49,91 +78,25 @@ posts.data?.items[0].author.username; // string
 | Option | Type | Description |
 | --- | --- | --- |
 | `baseUrl` | `string` | Base URL of your deployed API, with no trailing path. **Required.** |
-| `token` | `string \| () => string \| undefined \| Promise<...>` | JWT sent as `Authorization: Bearer <token>`. A function is called on every request, so it can read from storage or refresh a token. Omit it for public endpoints and for logging in. |
+| `token` | `string \| () => string \| undefined \| Promise<...>` | JWT sent as `Authorization: Bearer <token>`. A function is called on every request. Optional: `auth.login()` stores a token for you. |
 | `fetch` | `typeof fetch` | Custom `fetch`, useful for tests, proxies or older runtimes. |
 
-The returned client has `GET`, `POST`, `PUT`, `PATCH`, `DELETE` (plus `use()` for
-[middleware](https://openapi-ts.dev/openapi-fetch/middleware-auth)). Paths, params, bodies and
-responses are all checked by TypeScript.
+## Low-level API
 
-## Handling errors
-
-Calls never throw on HTTP errors. Each returns `{ data, error, response }`:
+The client is also a plain [`openapi-fetch`](https://openapi-ts.dev/openapi-fetch/) client with
+`GET`, `POST`, `PUT`, `PATCH`, `DELETE` and `use()` ([middleware](https://openapi-ts.dev/openapi-fetch/middleware-auth)).
+These **never throw on HTTP errors**; each returns `{ data, error, response }`:
 
 ```ts
-const { data, error, response } = await orbit.GET('/auth/me');
-
-if (error) {
-  // e.g. { statusCode: 401, message: 'Unauthorized' }
-  console.error(response.status, error);
-} else {
-  console.log(data.email);
-}
-```
-
-`data` is typed for 2xx responses. `error` is typed as the API's error body,
-`{ statusCode: number; message: string | string[]; error?: string }`. `message` is an array
-when request validation fails. Network failures still reject the promise.
-
-## Common tasks
-
-**Path and query parameters**
-
-```ts
-await orbit.GET('/events/{id}', { params: { path: { id } } });
-await orbit.GET('/news', { params: { query: { tag: 'release', page: 2 } } });
-```
-
-**Create content** (events, announcements, news and blog posts need an `ADMIN` or `SUPERUSER` token)
-
-```ts
-await orbit.POST('/news', {
-  body: { title: 'v2 released', content: '## Notes\n...', tags: ['release'] },
-});
-```
-
-**Forum: post, comment, vote**
-
-```ts
-const post = await orbit.POST('/forum-posts', {
-  body: { title: 'Lunch?', content: 'Where should we go?' },
-});
-const id = post.data!.id;
-
-await orbit.POST('/forum-posts/{id}/comments', {
+const { data, error, response } = await orbit.GET('/forum-posts/{id}', {
   params: { path: { id } },
-  body: { content: 'Tacos!' },
 });
-
-const vote = await orbit.PUT('/forum-posts/{id}/vote', {
-  params: { path: { id } },
-  body: { value: 1 }, // 1 = up, -1 = down, 0 = clear
-});
-vote.data?.score;
+if (error) console.error(response.status, error); // { statusCode, message: string | string[], error? }
+else console.log(data.title);
 ```
 
-**Upload an image** (JPEG/PNG/etc., max 5 MB). The generated type for the body is a
-placeholder, so build the `FormData` yourself with `bodySerializer`:
-
-```ts
-const form = new FormData();
-form.append('file', file);
-
-const up = await orbit.POST('/uploads', {
-  body: { file: '' },
-  bodySerializer: () => form,
-});
-up.data?.url; // '/uploads/<uuid>.png' (relative to baseUrl); embed in Markdown as ![](url)
-```
-
-**Use the generated types directly**
-
-```ts
-import type { components } from '@goatcheese/team-orbit-client';
-
-type ForumPost = components['schemas']['ForumPostDetailDto'];
-type Role = components['schemas']['UserDto']['role']; // 'SUPERUSER' | 'ADMIN' | 'USER'
-```
+Network failures still reject the promise. Use this when you want to branch on errors without
+`try/catch`, or for endpoints without a helper.
 
 ## Roles and permissions
 

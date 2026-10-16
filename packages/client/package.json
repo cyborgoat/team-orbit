@@ -1,6 +1,6 @@
 {
   "name": "@goatcheese/team-orbit-client",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Typed client for the Team Orbit API",
   "keywords": [
     "team-orbit",
@@ -43,6 +43,7 @@
     "generate": "openapi-typescript ../../openapi/openapi.json -o src/schema.d.ts && node scripts/readme-reference.mjs",
     "build": "npm run generate && tsc -p tsconfig.json && cp src/schema.d.ts dist/schema.d.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

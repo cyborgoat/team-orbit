@@ -1,0 +1,34 @@
+import type { components, paths } from './schema.js';
+
+type Schemas = components['schemas'];
+
+export type User = Schemas['UserDto'];
+export type Role = User['role'];
+export type UserStatus = User['status'];
+export type Event = Schemas['EventDto'];
+export type Announcement = Schemas['AnnouncementDto'];
+export type News = Schemas['NewsDto'];
+export type BlogPost = Schemas['BlogPostDto'];
+export type ForumPost = Schemas['ForumPostDetailDto'];
+export type ForumComment = Schemas['ForumCommentDto'];
+export type Notification = Schemas['PaginatedNotificationsDto']['items'][number];
+
+type Json<T> = T extends { content: { 'application/json': infer J } } ? J : never;
+
+/** JSON request body of an endpoint. */
+export type BodyOf<P extends keyof paths, M extends keyof paths[P]> = paths[P][M] extends {
+  requestBody?: infer R;
+}
+  ? Json<NonNullable<R>>
+  : never;
+
+/** Query parameters of an endpoint (list filters, `page`, `limit`, ...). */
+export type QueryOf<P extends keyof paths, M extends keyof paths[P] = 'get' & keyof paths[P]> =
+  paths[P][M] extends { parameters: { query?: infer Q } } ? NonNullable<Q> : never;
+
+/** Successful (2xx) JSON response of an endpoint. */
+export type ResponseOf<P extends keyof paths, M extends keyof paths[P]> = paths[P][M] extends {
+  responses: infer R;
+}
+  ? Json<R[keyof R & (200 | 201)]>
+  : never;

@@ -51,6 +51,8 @@ Cross-cutting wiring lives in `app.module.ts`:
 
 ## Data model (Prisma / SQLite)
 
+Full field-level reference and ER diagram: [Schema](schema.md).
+
 | Model | Purpose |
 |-------|---------|
 | `User` | Members with role, status, optional `avatarUrl` |
