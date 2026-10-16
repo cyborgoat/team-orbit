@@ -46,6 +46,44 @@ an account's email address.
 | `admin` | `admin@teamorbit.local` | `password123` | ADMIN |
 | `member` | `user@teamorbit.local` | `password123` | USER |
 
+### Demo content
+
+Run `npm run prisma:seed` from `api/` to populate the local database. On a fresh
+database the seed creates 12 users, 6 events, 6 announcements, 8 news articles,
+8 blog posts, 10 forum threads, 30 comments/replies, 90 votes, 16 notifications,
+and 24 notification reads. Events include past and upcoming dates relative to
+the first seed run. Additional fictional users cover all roles and account
+statuses, including accounts without email addresses. Newly created demo
+accounts use `password123`; inactive statuses still prevent normal sign-in.
+
+Seeding is transactional and additive: stable identifiers prevent duplicates,
+existing credentials are preserved, and reruns do not reset votes or scores.
+Missing fixtures are recreated; existing fixture edits are retained. Reruns
+repair legacy relative demo image links on seeded records while keeping edited
+text and custom image URLs. The command prints created/skipped/repaired counts. It writes directly to the database
+without broadcasting live notifications. Use `npm run test:seed` to verify the
+dataset and rerun behavior against an isolated temporary SQLite database.
+
+News, blogs, and forum discussions include examples following the
+[GitHub Flavored Markdown specification](https://github.github.com/gfm/):
+tables with alignment and escaped pipes, task lists, strikethrough, reference
+links, autolinks, linked images, nested lists, quotes, and fenced code blocks.
+Demo images are served publicly by the API under `/demo/`, including in production
+builds. The seed stores absolute image URLs so other apps can render them without
+proxying assets. Set `PUBLIC_BASE_URL` to the API address reachable by your clients
+before seeding (defaults to `http://localhost:3000`, or the configured `PORT`).
+For example, use `PUBLIC_BASE_URL=https://orbit.example.com npm run prisma:seed`.
+The test web app proxies `/demo/` for relative preview examples. Demo assets live
+in `api/src/assets/demo/` and require no external image host.
+
+Markdown previews also render LaTeX math through KaTeX, an extension beyond GFM.
+Use source mode to author `$E = mc^2$` inline, or put `$$` on its own lines
+around a display equation. Fractions, sums, aligned equations, and matrices are
+included in the sample posts. Code blocks remain literal. Invalid formulas stay
+readable; raw HTML is not executed and trusted KaTeX HTML commands are disabled.
+The rich text editor does not provide a visual equation editor; keep formula
+drafts in source mode while authoring and publishing.
+
 Registration requires username, full name, and password; email is optional.
 Self-registered accounts start as `PENDING` until an admin activates them.
 Members can add or remove email from Settings; username login remains available.

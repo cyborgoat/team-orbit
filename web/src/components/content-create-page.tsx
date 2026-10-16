@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { MarkdownBody } from '@/components/markdown-body'
 import { toast } from 'sonner'
 import { MarkdownEditor } from '@/components/markdown-editor'
 import { ImageUpload } from '@/components/image-upload'
@@ -69,7 +68,7 @@ export function ContentCreatePage({ kind }: { kind: 'news' | 'blog' | 'forum' })
           <h2 className="font-semibold">Preview</h2>
           {form.coverImageUrl && <img src={form.coverImageUrl} alt="Cover" className="max-h-64 rounded-lg object-cover" />}
           <h3 className="text-xl font-semibold">{form.title}</h3>
-          <div className="markdown-body"><ReactMarkdown remarkPlugins={[remarkGfm]}>{form.content}</ReactMarkdown></div>
+          <MarkdownBody content={form.content} />
         </section>
         <div className="flex justify-end gap-2">
           <Button variant="outline" type="button" asChild><Link to={list}>Cancel</Link></Button>

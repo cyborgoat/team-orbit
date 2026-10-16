@@ -1,5 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { HttpAdapterHost } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { ThrottlerStorage } from '@nestjs/throttler';
@@ -19,9 +21,16 @@ describe('App (e2e)', () => {
   const password = 'password123';
 
   beforeAll(async () => {
+    // ServeStaticModule selects its loader during compilation; provide the real
+    // HTTP adapter then, as NestFactory does in the running service.
+    const adapter = new ExpressAdapter();
+    const adapterHost = new HttpAdapterHost();
+    adapterHost.httpAdapter = adapter;
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     })
+      .overrideProvider(HttpAdapterHost)
+      .useValue(adapterHost)
       .overrideProvider(ThrottlerStorage)
       .useValue({
         increment: () =>
@@ -34,7 +43,8 @@ describe('App (e2e)', () => {
       })
       .compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication(adapter);
+    app.enableCors({ origin: true, credentials: true });
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -58,6 +68,25 @@ describe('App (e2e)', () => {
       .expect((res) => {
         expect(bodyOf(res).status).toBe('ok');
       });
+  });
+
+  it.each(['orbit', 'metrics', 'workshop'])(
+    'serves %s demo image to another app without authentication',
+    async (name) => {
+      await request(app.getHttpServer())
+        .get(`/demo/${name}.svg`)
+        .set('Origin', 'http://localhost:1420')
+        .expect(200)
+        .expect('Content-Type', /image\/svg\+xml/)
+        .expect('Access-Control-Allow-Origin', 'http://localhost:1420')
+        .expect((response) => {
+          expect(response.text ?? response.body.toString()).toContain('<svg');
+        });
+    },
+  );
+
+  it('returns 404 for unknown demo assets', async () => {
+    await request(app.getHttpServer()).get('/demo/missing.svg').expect(404);
   });
 
   it('/auth/login (POST) with seed admin', async () => {

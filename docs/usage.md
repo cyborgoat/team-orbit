@@ -26,6 +26,7 @@ The seed command creates `superadmin`, `admin`, and `member` with password
 | `JWT_EXPIRES_IN` | Token lifetime (default `7d`) |
 | `PORT` | HTTP port (default `3000`) |
 | `UPLOAD_DIR` | Relative upload folder (default `uploads`) |
+| `PUBLIC_BASE_URL` | Public API URL used for absolute seeded demo image links; defaults to `http://localhost:3000` (uses `PORT` when configured). Set before seeding for other devices or deployments. |
 
 For production builds, run `npm run build` followed by `npm run start:prod`.
 Use `npx prisma migrate dev` when authoring a new migration; use

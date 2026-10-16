@@ -10,8 +10,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { MarkdownBody } from '@/components/markdown-body'
 import { toast } from 'sonner'
 import { MarkdownEditor } from '@/components/markdown-editor'
 import { PageHeader } from '@/components/page-header'
@@ -103,14 +102,6 @@ function VoteControls({
       >
         <ChevronDown />
       </Button>
-    </div>
-  )
-}
-
-function MarkdownBody({ content }: { content: string }) {
-  return (
-    <div className="markdown-body text-sm leading-relaxed">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   )
 }

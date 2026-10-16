@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="480" viewBox="0 0 960 480" role="img" aria-labelledby="title desc">
+  <title id="title">Team Orbit</title><desc id="desc">Three teammates connected by a shared orbit on a pale green background.</desc>
+  <rect width="960" height="480" rx="24" fill="#e0eee8"/>
+  <ellipse cx="480" cy="220" rx="290" ry="145" fill="none" stroke="#8fb6a8" stroke-width="3"/>
+  <ellipse cx="480" cy="220" rx="165" ry="145" fill="none" stroke="#8fb6a8" stroke-width="3" transform="rotate(35 480 220)"/>
+  <g fill="#267064"><circle cx="220" cy="156" r="28"/><circle cx="695" cy="315" r="28"/><circle cx="544" cy="90" r="28"/></g>
+  <circle cx="480" cy="220" r="66" fill="#184d43"/>
+  <text x="480" y="235" text-anchor="middle" font-family="sans-serif" font-size="40" fill="#fff">O</text>
+  <text x="480" y="430" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#184d43">A shared space for the whole team</text>
+</svg>

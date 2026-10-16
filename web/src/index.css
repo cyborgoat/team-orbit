@@ -97,6 +97,19 @@
 
 @layer components {
   .markdown-body {
+    overflow-wrap: anywhere;
+    .katex-display {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-block: 0.25rem;
+    }
+    .katex {
+      overflow-wrap: normal;
+    }
+    .katex-error {
+      white-space: pre-wrap;
+    }
     :where(h1, h2, h3, h4, h5, h6) {
       @apply mt-4 mb-2 font-heading font-semibold tracking-tight first:mt-0;
     }
@@ -141,6 +154,7 @@
     }
     :where(table) {
       @apply my-3 w-full border-collapse text-sm;
+      overflow-wrap: normal;
     }
     :where(th, td) {
       @apply border border-border px-2.5 py-1.5 text-left;

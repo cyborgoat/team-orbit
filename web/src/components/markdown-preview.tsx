@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { MarkdownBody } from '@/components/markdown-body'
 import { Code2, Eye } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -102,9 +101,7 @@ export function MarkdownPreview({
               {content}
             </pre>
           ) : (
-            <div className="markdown-body text-sm leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-            </div>
+            <MarkdownBody content={content} />
           )}
         </div>
       </DialogContent>

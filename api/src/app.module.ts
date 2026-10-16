@@ -37,10 +37,17 @@ import { UsersModule } from './users/users.module';
       path: '/metrics',
       defaultMetrics: { enabled: true },
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
-      serveRoot: '/uploads',
-    }),
+    ServeStaticModule.forRoot(
+      {
+        rootPath: join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
+        serveRoot: '/uploads',
+      },
+      {
+        rootPath: join(__dirname, 'assets', 'demo'),
+        serveRoot: '/demo',
+        serveStaticOptions: { index: false },
+      },
+    ),
     PrismaModule,
     AuthModule,
     UsersModule,
