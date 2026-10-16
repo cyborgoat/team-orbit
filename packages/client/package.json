@@ -1,6 +1,6 @@
 {
   "name": "@goatcheese/team-orbit-client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Typed client for the Team Orbit API",
   "keywords": [
     "team-orbit",
@@ -29,7 +29,8 @@
     "node": ">=18"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

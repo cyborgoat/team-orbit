@@ -1,36 +1,30 @@
-# React + TypeScript + Vite
+# Team Orbit web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React test console for the [Team Orbit API](../README.md), built with Vite,
+TanStack Router/Query, shadcn/ui, and MDXEditor.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Start the API on port 3000, then run from `web/`:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open http://localhost:5173. Vite proxies API requests and Socket.io to the API;
+direct links and reloads on editor pages serve the web app.
 
+## Accounts
+
+Sign in with username and password. Select **Use email instead** to sign in
+with an email attached to the account. Seed usernames are `superadmin`,
+`admin`, and `member`; their local seed password is `password123`.
+
+Registration requires username, full name, and password. Email is optional.
+New accounts remain `PENDING` until an admin activates them on **Users**.
+Settings lets members add or remove their email and update their profile or
+password. Removing email leaves username login available.
 
 ## Content editing and roles
 
@@ -44,9 +38,17 @@ The Users page lets admins promote USER accounts to ADMIN. Superusers can
 assign every role. Open sessions refresh their role every 30 seconds while
 active and when the tab regains focus; API permissions change immediately.
 
-## Browser checks
+## Checks
 
-Run `npx playwright install chromium` once, then `npm run test:e2e`.
+```bash
+npm run build
+npm run lint
+npx playwright install chromium  # once
+npm run test:e2e
+```
+
 To use an installed Google Chrome instead, run
 `PLAYWRIGHT_CHROME=1 npm run test:e2e`. The suite uses mocked API responses
 and does not modify database records. It starts Vite automatically if needed.
+
+See the [usage guide](../docs/usage.md) for API setup and database migration.

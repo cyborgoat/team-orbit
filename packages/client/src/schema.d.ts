@@ -420,14 +420,14 @@ export interface components {
             username: string;
             fullName: string;
             /** Format: email */
-            email: string;
+            email?: string | null;
             password: string;
         };
         UserDto: {
             id: string;
             username: string;
             fullName: string;
-            email: string;
+            email: string | null;
             /** @enum {string} */
             role: "SUPERUSER" | "ADMIN" | "USER";
             /** @enum {string} */
@@ -440,10 +440,16 @@ export interface components {
         };
         LoginDto: {
             /**
+             * @description Provide exactly one of username or email
+             * @example admin
+             */
+            username?: string;
+            /**
              * Format: email
+             * @description Alternative to username
              * @example admin@teamorbit.local
              */
-            email: string;
+            email?: string;
             /** @example password123 */
             password: string;
         };
@@ -454,7 +460,7 @@ export interface components {
         UpdateProfileDto: {
             fullName?: string;
             /** Format: email */
-            email?: string;
+            email?: string | null;
             avatarUrl?: string | null;
         };
         ChangePasswordDto: {
@@ -475,7 +481,7 @@ export interface components {
             username: string;
             fullName: string;
             /** Format: email */
-            email: string;
+            email?: string | null;
             password: string;
             /** @enum {string} */
             role?: "SUPERUSER" | "ADMIN" | "USER";
@@ -487,7 +493,7 @@ export interface components {
             username?: string;
             fullName?: string;
             /** Format: email */
-            email?: string;
+            email?: string | null;
             password?: string;
             /** @enum {string} */
             role?: "SUPERUSER" | "ADMIN" | "USER";

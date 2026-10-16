@@ -42,7 +42,7 @@ function SettingsPage() {
     if (!user) return
     setProfile({
       fullName: user.fullName,
-      email: user.email,
+      email: user.email ?? '',
       avatarUrl: user.avatarUrl ?? '',
     })
   }, [user])
@@ -53,7 +53,7 @@ function SettingsPage() {
         method: 'PATCH',
         body: JSON.stringify({
           fullName: profile.fullName,
-          email: profile.email,
+          email: profile.email.trim() || null,
           avatarUrl: profile.avatarUrl || null,
         }),
       }),
@@ -126,7 +126,7 @@ function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="settings-email">Email</Label>
+              <Label htmlFor="settings-email">Email (optional)</Label>
               <Input
                 id="settings-email"
                 type="email"
@@ -134,7 +134,6 @@ function SettingsPage() {
                 onChange={(e) =>
                   setProfile({ ...profile, email: e.target.value })
                 }
-                required
               />
             </div>
             <div className="space-y-2">

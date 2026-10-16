@@ -24,8 +24,9 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('admin@teamorbit.local')
-  const [password, setPassword] = useState('password123')
+  const [method, setMethod] = useState<'username' | 'email'>('username')
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
 
   return (
@@ -44,7 +45,7 @@ function LoginPage() {
               e.preventDefault()
               setBusy(true)
               try {
-                await login(email, password)
+                await login(identifier, password, method)
                 toast.success('Signed in')
                 navigate({ to: '/' })
               } catch (err) {
@@ -55,16 +56,20 @@ function LoginPage() {
             }}
           >
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="identifier">{method === 'username' ? 'Username' : 'Email'}</Label>
               <Input
-                id="email"
-                type="email"
+                id="identifier"
+                type={method === 'email' ? 'email' : 'text'}
                 autoComplete="username"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
             </div>
+            <Button type="button" variant="link" className="h-auto p-0" disabled={busy}
+              onClick={() => { setMethod(method === 'username' ? 'email' : 'username'); setIdentifier('') }}>
+              {method === 'username' ? 'Use email instead' : 'Use username instead'}
+            </Button>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input

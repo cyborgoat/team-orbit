@@ -2360,6 +2360,7 @@
           },
           "email": {
             "type": "string",
+            "nullable": true,
             "format": "email"
           },
           "password": {
@@ -2370,7 +2371,6 @@
         "required": [
           "username",
           "fullName",
-          "email",
           "password"
         ]
       },
@@ -2387,7 +2387,8 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "role": {
             "enum": [
@@ -2435,10 +2436,17 @@
       "LoginDto": {
         "type": "object",
         "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "example": "admin",
+            "description": "Provide exactly one of username or email"
+          },
           "email": {
             "type": "string",
             "format": "email",
-            "example": "admin@teamorbit.local"
+            "example": "admin@teamorbit.local",
+            "description": "Alternative to username"
           },
           "password": {
             "type": "string",
@@ -2447,7 +2455,6 @@
           }
         },
         "required": [
-          "email",
           "password"
         ]
       },
@@ -2475,6 +2482,7 @@
           },
           "email": {
             "type": "string",
+            "nullable": true,
             "format": "email"
           },
           "avatarUrl": {
@@ -2550,6 +2558,7 @@
           },
           "email": {
             "type": "string",
+            "nullable": true,
             "format": "email"
           },
           "password": {
@@ -2581,7 +2590,6 @@
         "required": [
           "username",
           "fullName",
-          "email",
           "password"
         ]
       },
@@ -2597,6 +2605,7 @@
           },
           "email": {
             "type": "string",
+            "nullable": true,
             "format": "email"
           },
           "password": {

@@ -70,7 +70,7 @@ export class UsersService {
       data: {
         username: dto.username,
         fullName: dto.fullName,
-        email: dto.email,
+        email: dto.email ?? null,
         passwordHash,
         role: dto.role ?? Role.USER,
         status: dto.status ?? UserStatus.ACTIVE,

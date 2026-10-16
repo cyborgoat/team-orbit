@@ -4,11 +4,14 @@
 
 ### Users
 
-Manage team members with roles and lifecycle status.
+Manage team members with roles and lifecycle status. Sign in with username and
+password by default, or choose email/password when the account has email.
+Email is optional for both self-registration and admin-created accounts;
+profile settings can add or remove it.
 
 | Field | Notes |
 |-------|--------|
-| Username, full name, email | Unique username/email |
+| Username, full name, optional email | Unique username; email unique when provided |
 | Password | bcrypt-hashed |
 | Role | `SUPERUSER`, `ADMIN`, `USER` |
 | Status | `ACTIVE`, `INACTIVE`, `PENDING`, `SUSPENDED`, `DELETED` |
@@ -30,7 +33,11 @@ Manage team members with roles and lifecycle status.
 | Assign SUPERUSER role | yes | no | no |
 | Modify another SUPERUSER | yes | no | no |
 
-\*Admins cannot demote/delete SUPERUSER accounts or grant SUPERUSER.
+\*Admins can promote USER to ADMIN, but cannot change existing ADMIN or
+SUPERUSER roles or assign SUPERUSER. The Users page exposes permitted role
+changes. The API enforces the current saved role on each authenticated HTTP
+request; open web sessions refresh their profile every 30 seconds while active
+and on tab focus.
 
 Soft delete sets status to `DELETED` rather than removing the row.
 
@@ -99,19 +106,27 @@ Interactive OpenAPI docs: http://localhost:3000/api
 
 | Page | Purpose |
 |------|---------|
-| `/login` | Sign in |
-| `/register` | Self-signup (PENDING) |
+| `/login` | Username/password; optional email login mode |
+| `/register` | Self-signup with optional email (PENDING) |
 | `/` | Home shortcuts (authenticated) |
 | `/announcements` | List + create dialog |
 | `/events` | List + create with datetime-local + cover |
-| `/news` | Markdown news CRUD |
-| `/blog` | Markdown blog CRUD |
-| `/forum` | Forum list + create |
+| `/news` | News list, previews, and permitted deletion |
+| `/news/new` | Dedicated news creation page (Admin+) |
+| `/blog` | Blog list, previews, and permitted deletion |
+| `/blog/new` | Dedicated blog creation page (Admin+) |
+| `/forum` | Forum list |
+| `/forum/new` | Dedicated forum creation page |
 | `/forum/$postId` | Post detail, comments, votes |
-| `/users` | Create user (Admin+), status changes |
+| `/users` | Create user (Admin+), status and permitted role changes |
 | `/settings` | Self-service profile + change password |
 | `/notifications` | Inbox + mark read + live toasts |
 | `/uploads` | Standalone image upload check |
+
+All Markdown creation fields use MDXEditor with a formatting toolbar and source
+mode. Paste image files into rich text mode or use the image toolbar button
+(maximum 5 MB each). News, blog, and forum creation pages include an inline
+preview; comments and replies remain inline. Drafts are held in page memory.
 
 ## Observability
 

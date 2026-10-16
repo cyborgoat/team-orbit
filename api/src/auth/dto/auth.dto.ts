@@ -5,13 +5,27 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserDto } from '../../users/dto/user.dto';
 
 export class LoginDto {
-  @ApiProperty({ example: 'admin@teamorbit.local' })
+  @ApiPropertyOptional({
+    example: 'admin',
+    description: 'Provide exactly one of username or email',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  username?: string;
+
+  @ApiPropertyOptional({
+    example: 'admin@teamorbit.local',
+    description: 'Alternative to username',
+  })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @ApiProperty({ example: 'password123' })
   @IsString()
@@ -30,9 +44,13 @@ export class RegisterDto {
   @MinLength(1)
   fullName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() || null : value,
+  )
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string | null;
 
   @ApiProperty()
   @IsString()
@@ -47,10 +65,13 @@ export class UpdateProfileDto {
   @MinLength(1)
   fullName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() || null : value,
+  )
   @IsOptional()
   @IsEmail()
-  email?: string;
+  email?: string | null;
 
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()

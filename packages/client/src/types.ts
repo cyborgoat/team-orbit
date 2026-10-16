@@ -2,7 +2,10 @@ import type { components, paths } from './schema.js';
 
 type Schemas = components['schemas'];
 
+/** User records always include email; it is null when no address is supplied. */
 export type User = Schemas['UserDto'];
+/** Explicit login selector; omit it to infer email from an @ in the identifier. */
+export type LoginMethod = 'username' | 'email';
 export type Role = User['role'];
 export type UserStatus = User['status'];
 export type Event = Schemas['EventDto'];

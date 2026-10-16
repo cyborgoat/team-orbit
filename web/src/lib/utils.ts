@@ -20,7 +20,7 @@ export type User = {
   id: string
   username: string
   fullName: string
-  email: string
+  email: string | null
   role: string
   status: string
   avatarUrl?: string | null

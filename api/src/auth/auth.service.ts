@@ -36,22 +36,35 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: {
-        username: dto.username,
-        fullName: dto.fullName,
-        email: dto.email,
-        passwordHash,
-        status: UserStatus.PENDING,
-      },
-      select: userSelect,
-    });
-    return user;
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          username: dto.username,
+          fullName: dto.fullName,
+          email: dto.email ?? null,
+          passwordHash,
+          status: UserStatus.PENDING,
+        },
+        select: userSelect,
+      });
+      return user;
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        throw new ConflictException('Username or email is already in use');
+      }
+      throw err;
+    }
   }
 
   async login(dto: LoginDto) {
+    if (!!dto.username === !!dto.email) {
+      throw new BadRequestException('Provide exactly one of username or email');
+    }
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: dto.username ? { username: dto.username } : { email: dto.email! },
     });
     if (!user || user.status === UserStatus.DELETED) {
       throw new UnauthorizedException('Invalid credentials');

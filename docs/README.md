@@ -7,7 +7,7 @@ Guides for Team Orbit v1.
 | [Architecture](architecture.md) | Modular monolith layout, modules, data flow, auth, notifications |
 | [Schema](schema.md) | Database models, fields, IDs, relationships, ER diagram |
 | [Features](features.md) | Product capabilities, roles, statuses, and endpoints |
-| [Usage](usage.md) | Local setup, test UI walkthrough, backup, monitoring |
-| [Client SDK](../packages/client/README.md) | `@goatcheese/team-orbit-client`: typed helpers for calling the API from JS/TS |
+| [Usage](usage.md) | Setup, username/email login, editors, tests, migrations, backup |
+| [Client SDK](../packages/client/README.md) | `@goatcheese/team-orbit-client`: typed helpers, login methods, optional email, and REST integration |
 
 Start with the root [README](../README.md) for a quick start, then use these docs for detail.

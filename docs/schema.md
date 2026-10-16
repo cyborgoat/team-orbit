@@ -47,12 +47,18 @@ erDiagram
 | `id` | String | PK, UUID |
 | `username` | String | Unique |
 | `fullName` | String | |
-| `email` | String | Unique |
+| `email` | String? | Optional; unique when provided |
 | `passwordHash` | String | Never returned by the API |
 | `role` | Role | Default `USER` |
 | `status` | UserStatus | Default `PENDING` |
 | `avatarUrl` | String? | |
 | `createdAt`, `updatedAt` | DateTime | |
+
+Missing email is stored as SQL `NULL` and returned as `email: null`, allowing
+multiple accounts without email while retaining uniqueness for supplied addresses.
+Username is required and is the default login identifier. Migration
+`20261016000000_optional_user_email` makes email nullable without removing users
+or their content references.
 
 ### Event
 

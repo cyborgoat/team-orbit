@@ -25,7 +25,7 @@ import { createTeamOrbitClient } from '@goatcheese/team-orbit-client';
 const orbit = createTeamOrbitClient({ baseUrl: 'https://orbit.example.com' });
 
 // Log in once: the token is remembered for every later call
-await orbit.auth.login('admin@teamorbit.local', 'password123');
+await orbit.auth.login('admin', 'password123');
 
 const { items } = await orbit.forum.listPosts({ page: 1, limit: 10, q: 'welcome' });
 items[0].commentCount; // number
@@ -37,6 +37,45 @@ await orbit.forum.votePost(items[0].id, 1); // 1 = up, -1 = down, 0 = clear
 Persisting the token (e.g. across page loads)? Pass `token: () => localStorage.getItem('token') ?? undefined`
 instead, or call `orbit.setToken(...)`. A token from `login()` / `setToken()` takes precedence over the option.
 
+## Authentication and optional email
+
+The helper signature is `auth.login(identifier, password, method?)`. Without a
+method, identifiers containing `@` use email login; all others use username.
+Pass `'username'` or `'email'` to choose explicitly. The helper sends exactly
+one API identifier and remembers the returned access token.
+
+```ts
+import type { LoginMethod, User } from '@goatcheese/team-orbit-client';
+
+await orbit.auth.login('member', password);                // username
+await orbit.auth.login('member@example.com', password);   // legacy email call
+const method: LoginMethod = 'username';
+await orbit.auth.login('name@work', password, method);     // username containing @
+await orbit.auth.login('member@example.com', password, 'email');
+
+// Email is optional; the account remains PENDING until an admin activates it.
+const registered = await orbit.auth.register({
+  username: 'new-member',
+  fullName: 'New Member',
+  password: 'a-strong-password',
+});
+
+const me: User = await orbit.auth.me();
+console.log(me.email ?? 'No email supplied');
+await orbit.auth.updateMe({ email: 'member@example.com' });
+await orbit.auth.updateMe({ email: null }); // removes email login; username still works
+```
+
+`register` and `users.create` may omit `email` (or send `null`). User responses
+always include `email` as `string | null`; handle `null` in consuming UIs.
+Supplied email addresses must be valid and unique. A profile update that omits
+email leaves it unchanged; `null` or an empty string removes it.
+
+Raw `POST /auth/login` requests use either `{ username, password }` or
+`{ email, password }`; both identifiers together, or neither, return 400.
+Unknown users and wrong passwords return 401. Self-registration keeps the
+existing admin activation requirement.
+
 ## Helpers
 
 Every helper returns the parsed response body and **throws** a `TeamOrbitError` on non-2xx.
@@ -44,7 +83,7 @@ All params, bodies and responses are typed from the OpenAPI spec.
 
 | Namespace | Methods |
 | --- | --- |
-| `orbit.auth` | `login(email, password)`, `register(body)`, `me()`, `updateMe(body)`, `changePassword(body)`, `logout()` |
+| `orbit.auth` | `login(identifier, password, method?)`, `register(body)`, `me()`, `updateMe(body)`, `changePassword(body)`, `logout()` |
 | `orbit.users`, `events`, `announcements`, `news`, `blogPosts` | `list(query?)`, `get(id)`, `create(body)`, `update(id, body)`, `delete(id)`, `iterate(query?)` |
 | `orbit.forum` | `listPosts`, `getPost`, `createPost`, `updatePost`, `deletePost`, `addComment(postId, body)`, `updateComment`, `deleteComment`, `votePost(id, value)`, `voteComment(id, value)` |
 | `orbit.notifications` | `list(query?)`, `markRead(id)` |
@@ -66,10 +105,23 @@ for await (const item of orbit.news.iterate({ tag: 'release' })) console.log(ite
 
 // Upload an image (JPEG/PNG/etc., max 5 MB); embed the url in Markdown as ![](url)
 const { url } = await orbit.uploads.upload(file);
+// Returned URLs are relative to the API origin, not necessarily your frontend.
+const imageUrl = new URL(url, 'https://orbit.example.com').href;
+await orbit.forum.createPost({ title: 'Team photo', content: `![Team photo](${imageUrl})` });
 ```
 
-Friendly types are exported too: `User`, `Role`, `UserStatus`, `Event`, `Announcement`, `News`,
+Friendly types are exported too: `User`, `Role`, `UserStatus`, `LoginMethod`, `Event`, `Announcement`, `News`,
 `BlogPost`, `ForumPost`, `ForumComment`, `Notification`.
+
+For example, an authorized admin can promote a member without changing other fields:
+
+```ts
+await orbit.users.update(memberId, { role: 'ADMIN' });
+```
+
+The SDK does not poll `/auth/me`; consumers should refresh it when they need to
+update role-dependent controls. The API enforces the current saved role on each
+authenticated HTTP request.
 
 ## Options
 
@@ -103,7 +155,7 @@ Network failures still reject the promise. Use this when you want to branch on e
 | Role | Can do |
 | --- | --- |
 | `USER` | Read events, announcements, news, blog posts, forum and notifications; post, comment and vote in the forum; edit or delete their own forum posts and comments; manage their own profile. |
-| `ADMIN` | Everything a `USER` can, plus manage users, create/update/delete events, announcements, news and blog posts, and moderate the forum. |
+| `ADMIN` | Everything a `USER` can, plus manage users, promote USER to ADMIN, create/update/delete events, announcements, news and blog posts, and moderate the forum. Cannot change existing ADMIN or SUPERUSER roles. |
 | `SUPERUSER` | Everything an `ADMIN` can, plus create and modify superusers. |
 
 New accounts from `POST /auth/register` start as `PENDING` and **cannot log in** until an
@@ -223,16 +275,25 @@ under `components['schemas']`. List endpoints accept `page`, `limit` (max 100) a
 
 The client is generated from the API's OpenAPI spec, so new endpoints and fields show up
 in the next release of this package. Pin the version if your deployed API lags behind.
+Version 0.3.0 adds username login and makes `User.email` nullable; consumers must handle `null`. Existing
+`login(email, password)` calls remain supported. Apply the API's optional-email
+migration before using registration without email. See [0.3.0 release notes](CHANGELOG.md).
 
 ## Contributing / regenerating
 
 In the [repository](https://github.com/cyborgoat/team-orbit):
 
 ```bash
-cd api && npm run openapi:export          # writes openapi/openapi.json
-cd ../packages/client && npm run build    # regenerates types and this README's API table
-./scripts/check-sdk.sh                    # from the repo root: fails if either is stale
+cd api
+npm run openapi:export       # writes openapi/openapi.json
+cd ../packages/client
+npm test                    # regenerate types/API table, compile, and run tests
+cd ../..
+./scripts/check-sdk.sh       # checks generated files against Git
 ```
+
+The consistency script compares generated files with Git. Regenerated changes
+must be included in the same commit as the API change for that check to pass.
 
 ## License
 

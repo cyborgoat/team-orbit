@@ -1,6 +1,6 @@
 import type { Client } from 'openapi-fetch';
 import { unwrap } from './errors.js';
-import type { BodyOf, QueryOf, ResponseOf } from './types.js';
+import type { BodyOf, LoginMethod, QueryOf, ResponseOf } from './types.js';
 import type { paths } from './schema.js';
 
 type Raw = Client<paths>;
@@ -49,12 +49,21 @@ export function createResources(client: Raw, auth: { setToken(t: string | undefi
 
   return {
     auth: {
+      /** Registers a PENDING member. Email may be omitted or null. */
       register: (body: BodyOf<'/auth/register', 'post'>) =>
         call(client, 'POST', '/auth/register', { body }) as Promise<ResponseOf<'/auth/register', 'post'>>,
-      /** Logs in and remembers the returned token for later requests. */
-      async login(email: string, password: string) {
+      /**
+       * Logs in and remembers the returned token for later requests.
+       * Infers email when identifier contains @; otherwise uses username.
+       * Pass method explicitly for usernames containing @.
+       */
+      async login(
+        identifier: string,
+        password: string,
+        method: LoginMethod = identifier.includes('@') ? 'email' : 'username',
+      ) {
         const res = (await call(client, 'POST', '/auth/login', {
-          body: { email, password },
+          body: { [method]: identifier, password },
         })) as ResponseOf<'/auth/login', 'post'>;
         auth.setToken(res.accessToken);
         return res;

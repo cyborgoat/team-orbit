@@ -53,7 +53,7 @@ type Item = {
   id: string
   username: string
   fullName: string
-  email: string
+  email: string | null
   role: string
   status: string
 }
@@ -99,7 +99,7 @@ function UsersPage() {
     mutationFn: () =>
       api('/users', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, email: form.email.trim() || undefined }),
       }),
     onSuccess: () => {
       setForm({
@@ -198,7 +198,7 @@ function UsersPage() {
                   [
                     ['username', 'Username', 'text'],
                     ['fullName', 'Full name', 'text'],
-                    ['email', 'Email', 'email'],
+                    ['email', 'Email (optional)', 'email'],
                     ['password', 'Password', 'password'],
                   ] as const
                 ).map(([key, label, type]) => (
@@ -209,7 +209,7 @@ function UsersPage() {
                       type={type}
                       value={form[key]}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                      required
+                      required={key !== 'email'}
                       minLength={key === 'password' ? 6 : undefined}
                     />
                   </div>
@@ -304,7 +304,7 @@ function UsersPage() {
                     <div className="font-medium">{u.fullName}</div>
                     <div className="text-sm text-muted-foreground">@{u.username}</div>
                   </TableCell>
-                  <TableCell>{u.email}</TableCell>
+                  <TableCell>{u.email ?? '—'}</TableCell>
                   <TableCell>
                     {user?.role === 'SUPERUSER' || (user?.role === 'ADMIN' && u.role === 'USER') ? (
                       <Select value={u.role} disabled={updateRole.isPending && updateRole.variables?.id === u.id}

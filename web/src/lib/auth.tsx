@@ -6,11 +6,11 @@ type AuthContextValue = {
   user: User | null
   token: string | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (identifier: string, password: string, method?: 'username' | 'email') => Promise<void>
   register: (payload: {
     username: string
     fullName: string
-    email: string
+    email?: string
     password: string
   }) => Promise<void>
   logout: () => void
@@ -63,12 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const result = await refetch()
         if (result.error) throw result.error
       },
-      async login(email, password) {
+      async login(identifier, password, method = 'username') {
         const res = await api<{ accessToken: string; user: User }>(
           '/auth/login',
           {
             method: 'POST',
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ [method]: identifier.trim(), password }),
           },
         )
         setToken(res.accessToken)

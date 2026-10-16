@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PageMetaDto } from '../../common/dto/response.dto';
+import { Transform } from 'class-transformer';
 import { Role, UserStatus } from '@prisma/client';
 import {
   IsEmail,
@@ -19,9 +20,13 @@ export class CreateUserDto {
   @IsString()
   fullName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: String, nullable: true })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() || null : value,
+  )
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string | null;
 
   @ApiProperty()
   @IsString()
@@ -56,8 +61,8 @@ export class UserDto {
   @ApiProperty()
   fullName: string;
 
-  @ApiProperty()
-  email: string;
+  @ApiProperty({ type: String, nullable: true })
+  email: string | null;
 
   @ApiProperty({ enum: Role })
   role: Role;

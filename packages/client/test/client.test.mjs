@@ -79,3 +79,26 @@ test('vote and path params are wired correctly', async () => {
   assert.equal(new URL(calls[0].url).pathname, '/forum-posts/p1/vote');
   assert.deepEqual(await calls[0].json(), { value: 1 });
 });
+
+
+test('login accepts username and explicit email mode without breaking legacy email calls', async () => {
+  const { fetch, calls } = mockFetch(() => ({ body: { accessToken: 'abc' } }));
+  const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
+  await orbit.auth.login('member', 'secret');
+  await orbit.auth.login('member@example.com', 'secret');
+  await orbit.auth.login('name@work', 'secret', 'username');
+  await orbit.auth.login('member@example.com', 'secret', 'email');
+  assert.deepEqual(await calls[0].json(), { username: 'member', password: 'secret' });
+  assert.deepEqual(await calls[1].json(), { email: 'member@example.com', password: 'secret' });
+  assert.deepEqual(await calls[2].json(), { username: 'name@work', password: 'secret' });
+  assert.deepEqual(await calls[3].json(), { email: 'member@example.com', password: 'secret' });
+});
+
+test('registration omits email and profile can clear it', async () => {
+  const { fetch, calls } = mockFetch(() => ({ body: { id: 'member', email: null } }));
+  const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
+  await orbit.auth.register({ username: 'member', fullName: 'Member', password: 'secret' });
+  assert.equal('email' in await calls[0].json(), false);
+  await orbit.auth.updateMe({ email: null });
+  assert.deepEqual(await calls[1].json(), { email: null });
+});

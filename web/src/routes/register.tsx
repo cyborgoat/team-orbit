@@ -48,7 +48,7 @@ function RegisterPage() {
               e.preventDefault()
               setBusy(true)
               try {
-                await register(form)
+                await register({ ...form, username: form.username.trim(), email: form.email.trim() || undefined })
                 toast.success('Registered as PENDING — ask an admin to activate you')
                 navigate({ to: '/login' })
               } catch (err) {
@@ -62,7 +62,7 @@ function RegisterPage() {
               [
                 ['username', 'Username', 'text'],
                 ['fullName', 'Full name', 'text'],
-                ['email', 'Email', 'email'],
+                ['email', 'Email (optional)', 'email'],
                 ['password', 'Password', 'password'],
               ] as const
             ).map(([key, label, type]) => (
@@ -73,7 +73,9 @@ function RegisterPage() {
                   type={type}
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  required
+                  required={key !== 'email'}
+                  minLength={key === 'username' ? 3 : key === 'password' ? 6 : undefined}
+                  autoComplete={key === 'password' ? 'new-password' : key === 'username' ? 'username' : key === 'email' ? 'email' : 'name'}
                 />
               </div>
             ))}
