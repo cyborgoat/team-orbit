@@ -26,6 +26,11 @@ export type User = {
   avatarUrl?: string | null
 }
 
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) { super(message); this.status = status }
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {},
@@ -47,7 +52,7 @@ export async function api<T>(
     } catch {
       /* keep text */
     }
-    throw new Error(Array.isArray(message) ? message.join(', ') : message)
+    throw new ApiError(Array.isArray(message) ? message.join(', ') : message, res.status)
   }
   if (res.status === 204) return undefined as T
   return res.json()

@@ -121,6 +121,8 @@ function ForumPostPage() {
   const { user } = useAuth()
   const qc = useQueryClient()
   const [mode, setMode] = useState<'view' | 'source'>('view')
+  const [commentUploading, setCommentUploading] = useState(false)
+  const [replyUploading, setReplyUploading] = useState(false)
   const [comment, setComment] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
@@ -300,22 +302,23 @@ function ForumPostPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            if (!comment.trim()) return
+            if (commentUploading || addComment.isPending || !comment.trim()) return
             addComment.mutate({ content: comment })
           }}
         >
           <CardContent className="space-y-2">
-            <Label htmlFor="forum-comment">Add a comment</Label>
+            <Label htmlFor="forum-comment-input">Add a comment</Label>
             <MarkdownEditor
               id="forum-comment"
               value={comment}
               onChange={setComment}
+              onUploadingChange={setCommentUploading}
               minHeightClass="min-h-24"
               placeholder="Write a markdown comment…"
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={addComment.isPending || !comment.trim()}>
+            <Button type="submit" disabled={commentUploading || addComment.isPending || !comment.trim()}>
               {addComment.isPending ? 'Posting…' : 'Post comment'}
             </Button>
           </CardFooter>
@@ -380,7 +383,7 @@ function ForumPostPage() {
                     className="mt-3 space-y-2"
                     onSubmit={(e) => {
                       e.preventDefault()
-                      if (!replyContent.trim()) return
+                      if (replyUploading || addComment.isPending || !replyContent.trim()) return
                       addComment.mutate({
                         content: replyContent,
                         parentId: c.id,
@@ -390,13 +393,14 @@ function ForumPostPage() {
                     <MarkdownEditor
                       value={replyContent}
                       onChange={setReplyContent}
+                      onUploadingChange={setReplyUploading}
                       minHeightClass="min-h-20"
                       placeholder="Write a reply…"
                     />
                     <Button
                       type="submit"
                       size="sm"
-                      disabled={addComment.isPending || !replyContent.trim()}
+                      disabled={replyUploading || addComment.isPending || !replyContent.trim()}
                     >
                       {addComment.isPending ? 'Posting…' : 'Post reply'}
                     </Button>

@@ -7,15 +7,18 @@ import { api } from '@/lib/utils'
 export function ImageUpload({
   value,
   onChange,
+  onUploadingChange,
 }: {
   value?: string
   onChange: (url: string) => void
+  onUploadingChange?: (uploading: boolean) => void
 }) {
   const [uploading, setUploading] = useState(false)
 
   async function onFile(file: File | null) {
     if (!file) return
     setUploading(true)
+    onUploadingChange?.(true)
     try {
       const form = new FormData()
       form.append('file', file)
@@ -29,6 +32,7 @@ export function ImageUpload({
       toast.error(e instanceof Error ? e.message : 'Upload failed')
     } finally {
       setUploading(false)
+      onUploadingChange?.(false)
     }
   }
 

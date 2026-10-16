@@ -1,11 +1,18 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig, type ProxyOptions } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
+
+const apiProxy: ProxyOptions = {
+  target: 'http://localhost:3000',
+  bypass(req) {
+    if (req.headers.accept?.includes('text/html')) return '/index.html'
+  },
+}
 
 export default defineConfig({
   plugins: [
@@ -21,17 +28,17 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/auth': 'http://localhost:3000',
-      '/users': 'http://localhost:3000',
-      '/events': 'http://localhost:3000',
-      '/announcements': 'http://localhost:3000',
-      '/news': 'http://localhost:3000',
-      '/blog-posts': 'http://localhost:3000',
-      '/forum-posts': 'http://localhost:3000',
-      '/forum-comments': 'http://localhost:3000',
-      '/uploads': 'http://localhost:3000',
-      '/notifications': 'http://localhost:3000',
-      '/health': 'http://localhost:3000',
+      '/auth': apiProxy,
+      '/users': apiProxy,
+      '/events': apiProxy,
+      '/announcements': apiProxy,
+      '/news': apiProxy,
+      '/blog-posts': apiProxy,
+      '/forum-posts': apiProxy,
+      '/forum-comments': apiProxy,
+      '/uploads': apiProxy,
+      '/notifications': apiProxy,
+      '/health': apiProxy,
       '/socket.io': {
         target: 'http://localhost:3000',
         ws: true,

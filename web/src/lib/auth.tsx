@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { api, getToken, setToken, type User } from '@/lib/utils'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { ApiError, api, getToken, setToken, type User } from '@/lib/utils'
 
 type AuthContextValue = {
   user: User | null
@@ -20,24 +21,37 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const qc = useQueryClient()
   const [token, setTokenState] = useState<string | null>(getToken())
-  const [loading, setLoading] = useState(true)
+  const profile = useQuery({
+    queryKey: ['auth-user', token],
+    queryFn: ({ signal }) => api<User>('/auth/me', { signal }),
+    enabled: !!token,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: 'always',
+    retry: false,
+  })
+  const user = token ? profile.data ?? null : null
+  const loading = !!token && profile.isPending
+  const setUser = useCallback((next: User | null) => { qc.setQueryData(['auth-user', token], next) }, [qc, token])
+  const { refetch } = profile
 
   useEffect(() => {
-    const t = getToken()
-    if (!t) {
-      setLoading(false)
-      return
+    if (profile.error instanceof ApiError && profile.error.status === 401) {
+      setToken(null)
+      // Synchronize the local session with an authentication failure from the API.
+      // oxlint-disable-next-line react/set-state-in-effect
+      setTokenState(null)
+      qc.removeQueries({ queryKey: ['auth-user'] })
     }
-    api<User>('/auth/me')
-      .then(setUser)
-      .catch(() => {
-        setToken(null)
-        setTokenState(null)
-      })
-      .finally(() => setLoading(false))
-  }, [])
+  }, [profile.error, qc])
+
+  useEffect(() => {
+    if (user?.role !== 'ADMIN' && user?.role !== 'SUPERUSER') {
+      void qc.cancelQueries({ queryKey: ['users'] })
+      qc.removeQueries({ queryKey: ['users'] })
+    }
+  }, [user?.role, qc])
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -46,8 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       setUser,
       async refreshUser() {
-        const next = await api<User>('/auth/me')
-        setUser(next)
+        const result = await refetch()
+        if (result.error) throw result.error
       },
       async login(email, password) {
         const res = await api<{ accessToken: string; user: User }>(
@@ -59,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
         setToken(res.accessToken)
         setTokenState(res.accessToken)
-        setUser(res.user)
+        qc.setQueryData(['auth-user', res.accessToken], res.user)
       },
       async register(payload) {
         await api('/auth/register', {
@@ -70,10 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout() {
         setToken(null)
         setTokenState(null)
-        setUser(null)
+        qc.clear()
       },
     }),
-    [user, token, loading],
+    [user, token, loading, qc, refetch, setUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

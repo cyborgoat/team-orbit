@@ -156,3 +156,24 @@
     }
   }
 }
+
+/* Keep MDXEditor's toolbar and editing surface aligned with the app theme. */
+.orbit-editor {
+  --baseBase: var(--background);
+  --baseBgSubtle: var(--muted);
+  --baseBg: var(--muted);
+  --baseBgHover: var(--accent);
+  --baseBgActive: var(--accent);
+  --baseBorder: var(--border);
+  --baseBorderHover: var(--ring);
+  --baseText: var(--muted-foreground);
+  --baseTextContrast: var(--foreground);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+.orbit-editor [role="toolbar"] {
+  position: static;
+  flex-wrap: wrap;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+.orbit-editor img { max-width: 100%; }

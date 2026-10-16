@@ -1,20 +1,9 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MessageSquare, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
 import { toast } from 'sonner'
-import { MarkdownEditor } from '@/components/markdown-editor'
 import { PageHeader } from '@/components/page-header'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import {
   Empty,
   EmptyDescription,
@@ -22,8 +11,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Table,
   TableBody,
@@ -35,7 +22,7 @@ import {
 import { useAuth } from '@/lib/auth'
 import { api, getToken } from '@/lib/utils'
 
-export const Route = createFileRoute('/forum')({
+export const Route = createFileRoute('/forum/')({
   beforeLoad: () => {
     if (!getToken()) throw redirect({ to: '/login' })
   },
@@ -66,24 +53,6 @@ function ForumPage() {
     queryKey: ['forum-posts'],
     queryFn: () => api<{ items: ForumPostListItem[] }>('/forum-posts'),
   })
-  const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ title: '', content: '' })
-
-  const create = useMutation({
-    mutationFn: () =>
-      api('/forum-posts', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      }),
-    onSuccess: () => {
-      setForm({ title: '', content: '' })
-      setOpen(false)
-      qc.invalidateQueries({ queryKey: ['forum-posts'] })
-      toast.success('Post published')
-    },
-    onError: (e: Error) => toast.error(e.message),
-  })
-
   const remove = useMutation({
     mutationFn: (id: string) => api(`/forum-posts/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
@@ -105,57 +74,7 @@ function ForumPage() {
         title="Forum"
         description="Markdown discussion posts with comments, replies, and votes."
         actions={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus data-icon="inline-start" />
-                New post
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-              <form
-                className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  create.mutate()
-                }}
-              >
-                <DialogHeader>
-                  <DialogTitle>New forum post</DialogTitle>
-                  <DialogDescription>
-                    Write in markdown. Use Insert image to embed uploads.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-2">
-                  <Label htmlFor="forum-title">Title</Label>
-                  <Input
-                    id="forum-title"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="forum-content">Content</Label>
-                  <MarkdownEditor
-                    id="forum-content"
-                    value={form.content}
-                    onChange={(content) => setForm({ ...form, content })}
-                    required
-                    placeholder="## Hello&#10;&#10;Share an idea…"
-                  />
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={create.isPending}>
-                    {create.isPending ? 'Publishing…' : 'Publish'}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button asChild><Link to="/forum/new"><Plus data-icon="inline-start" />New post</Link></Button>
         }
       />
 

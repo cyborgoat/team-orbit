@@ -30,3 +30,23 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+
+## Content editing and roles
+
+News, blog, and forum creation use `/news/new`, `/blog/new`, and `/forum/new`.
+The shared MDXEditor includes a formatting toolbar and Markdown source mode.
+Paste image files into rich text mode or use the image toolbar button; uploads
+are limited to 5 MB each. Comments and replies use the same editor inline.
+Drafts stay in page memory and are discarded when leaving the page.
+
+The Users page lets admins promote USER accounts to ADMIN. Superusers can
+assign every role. Open sessions refresh their role every 30 seconds while
+active and when the tab regains focus; API permissions change immediately.
+
+## Browser checks
+
+Run `npx playwright install chromium` once, then `npm run test:e2e`.
+To use an installed Google Chrome instead, run
+`PLAYWRIGHT_CHROME=1 npm run test:e2e`. The suite uses mocked API responses
+and does not modify database records. It starts Vite automatically if needed.

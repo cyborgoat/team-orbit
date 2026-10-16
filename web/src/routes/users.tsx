@@ -76,12 +76,12 @@ function statusVariant(status: string) {
 }
 
 function UsersPage() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const qc = useQueryClient()
   const canManage = user?.role === 'ADMIN' || user?.role === 'SUPERUSER'
   const { data, error, isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => api<{ items: Item[] }>('/users'),
+    queryFn: ({ signal }) => api<{ items: Item[] }>('/users', { signal }),
     enabled: canManage,
   })
 
@@ -113,6 +113,17 @@ function UsersPage() {
       setOpen(false)
       qc.invalidateQueries({ queryKey: ['users'] })
       toast.success('User created')
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
+
+  const updateRole = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) =>
+      api<Item>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+    onSuccess: async (updated) => {
+      if (updated.id === user?.id) await refreshUser()
+      await qc.invalidateQueries({ queryKey: ['users'] })
+      toast.success('User role updated')
     },
     onError: (e: Error) => toast.error(e.message),
   })
@@ -295,7 +306,13 @@ function UsersPage() {
                   </TableCell>
                   <TableCell>{u.email}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{u.role}</Badge>
+                    {user?.role === 'SUPERUSER' || (user?.role === 'ADMIN' && u.role === 'USER') ? (
+                      <Select value={u.role} disabled={updateRole.isPending && updateRole.variables?.id === u.id}
+                        onValueChange={(role) => { if (role && role !== u.role) updateRole.mutate({ id: u.id, role }) }}>
+                        <SelectTrigger size="sm" className="w-36" aria-label={`Role for ${u.fullName}`}><SelectValue /></SelectTrigger>
+                        <SelectContent>{roleOptions.map((role) => <SelectItem key={role} value={role}>{role}</SelectItem>)}</SelectContent>
+                      </Select>
+                    ) : <Badge variant="outline">{u.role}</Badge>}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
