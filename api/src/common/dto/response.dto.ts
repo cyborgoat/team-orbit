@@ -18,6 +18,8 @@ export class PageMetaDto {
 
 export class UserSummaryDto {
   @ApiProperty()
+  avatarUrl: string;
+  @ApiProperty()
   id: string;
 
   @ApiProperty()

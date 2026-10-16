@@ -17,7 +17,7 @@ export class CreateForumPostDto {
   title: string;
 
   @ApiProperty({
-    description: 'Markdown body; embed images as ![](/uploads/...)',
+    description: 'Markdown body; use absolute image URLs returned by uploads',
   })
   @IsString()
   @MinLength(1)
@@ -68,8 +68,8 @@ export class ForumAuthorDto {
   @ApiProperty()
   fullName: string;
 
-  @ApiProperty({ type: String, nullable: true })
-  avatarUrl: string | null;
+  @ApiProperty()
+  avatarUrl: string;
 }
 
 /** A post as returned by PATCH (no vote or comment info). */

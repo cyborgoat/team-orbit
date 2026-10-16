@@ -9,20 +9,24 @@ for building your own frontend.
 
 ## Quick start
 
-**Prerequisites:** Node.js 20+ compatible with the installed Vite version.
+**Prerequisites:** Node.js 22.12+ and npm.
 
 ```bash
 # API
 cd api
 cp .env.example .env
+# Configure DATABASE_URL, JWT_SECRET, PUBLIC_BASE_URL and BOOTSTRAP_ADMIN_*.
 npm install
 npm run prisma:generate
 npx prisma migrate deploy
-npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+npm run prisma:seed  # configure BOOTSTRAP_ADMIN_* in .env first
 npm run start:dev
 
 # Web (separate terminal, from the repository root)
+npm --prefix packages/client install
+npm --prefix packages/client run build
 cd web
+cp .env.example .env.local  # set API_PROXY_TARGET to your API address
 npm install
 npm run dev
 ```
@@ -30,51 +34,33 @@ npm run dev
 | Service | URL |
 |---------|-----|
 | Web UI | http://localhost:5173 |
-| API | http://localhost:3000 |
-| Swagger | http://localhost:3000/api |
-| Health | http://localhost:3000/health |
+| API | http://localhost:3000/api |
+| Swagger | http://localhost:3000/docs |
+| Health | http://localhost:3000/api/health |
 | Metrics | http://localhost:3000/metrics |
 
-### Seed accounts
+### First administrator
 
-Sign in with **username and password**. Choose **Use email instead** to use
-an account's email address.
+Set `BOOTSTRAP_ADMIN_USERNAME`, `BOOTSTRAP_ADMIN_NAME`, and
+`BOOTSTRAP_ADMIN_PASSWORD` in `api/.env`, then run `npm run prisma:seed` from
+`api/`. `BOOTSTRAP_ADMIN_EMAIL` is optional. This creates one active superuser
+using your supplied credentials; rerunning preserves an existing administrator.
+If no bootstrap settings are supplied and an active superuser already exists,
+seeding skips without changing any accounts. `npx prisma db seed` and
+`npm run prisma:seed` use the same configuration in `api/prisma.config.ts`.
+There are no built-in login credentials or sample content in normal seeding.
 
-| Username | Optional email | Password | Role |
-|----------|----------------|----------|------|
-| `superadmin` | `super@teamorbit.local` | `password123` | SUPERUSER |
-| `admin` | `admin@teamorbit.local` | `password123` | ADMIN |
-| `member` | `user@teamorbit.local` | `password123` | USER |
+Sign in with username and password. Email login is also available when an email
+has been added. Self-registration requires username, full name, and password;
+new accounts remain pending until an administrator activates them.
 
-### Demo content
+### Optional test fixtures
 
-Run `npm run prisma:seed` from `api/` to populate the local database. On a fresh
-database the seed creates 12 users, 6 events, 6 announcements, 8 news articles,
-8 blog posts, 10 forum threads, 30 comments/replies, 90 votes, 16 notifications,
-and 24 notification reads. Events include past and upcoming dates relative to
-the first seed run. Additional fictional users cover all roles and account
-statuses, including accounts without email addresses. Newly created demo
-accounts use `password123`; inactive statuses still prevent normal sign-in.
-
-Seeding is transactional and additive: stable identifiers prevent duplicates,
-existing credentials are preserved, and reruns do not reset votes or scores.
-Missing fixtures are recreated; existing fixture edits are retained. Reruns
-repair legacy relative demo image links on seeded records while keeping edited
-text and custom image URLs. The command prints created/skipped/repaired counts. It writes directly to the database
-without broadcasting live notifications. Use `npm run test:seed` to verify the
-dataset and rerun behavior against an isolated temporary SQLite database.
-
-News, blogs, and forum discussions include examples following the
-[GitHub Flavored Markdown specification](https://github.github.com/gfm/):
-tables with alignment and escaped pipes, task lists, strikethrough, reference
-links, autolinks, linked images, nested lists, quotes, and fenced code blocks.
-Demo images are served publicly by the API under `/demo/`, including in production
-builds. The seed stores absolute image URLs so other apps can render them without
-proxying assets. Set `PUBLIC_BASE_URL` to the API address reachable by your clients
-before seeding (defaults to `http://localhost:3000`, or the configured `PORT`).
-For example, use `PUBLIC_BASE_URL=https://orbit.example.com npm run prisma:seed`.
-The test web app proxies `/demo/` for relative preview examples. Demo assets live
-in `api/src/assets/demo/` and require no external image host.
+A rich mock dataset is available only through the explicit
+`demo:seed` command. It lives under [test fixtures](api/test/fixtures/demo/README.md),
+is excluded from the application build, and refuses production execution.
+Demo illustrations are ordinary uploaded files when explicitly seeded; the API
+has no built-in `/demo` route.
 
 Markdown previews also render LaTeX math through KaTeX, an extension beyond GFM.
 Use source mode to author `$E = mc^2$` inline, or put `$$` on its own lines
@@ -97,18 +83,32 @@ Members can add or remove email from Settings; username login remains available.
 - **Images:** paste image files into rich text mode or use the image toolbar
   button. Comments and replies support the same editor inline. Each upload is
   limited to 5 MB; the API stores files on disk and URLs in Markdown.
+- **Avatars:** Settings provides five bird portraits in a shared quirky fantasy
+  style, image uploads, direct HTTP/HTTPS image links, and **Use default avatar**
+  reset. Pick a portrait or apply an image link, then save the profile.
+  Administrators can also use **Edit avatar** on each member in
+  Users, or choose an avatar when creating an account. Existing moderation rules
+  still apply. Saving waits for uploads to finish.
+- **Default avatar:** users without a custom image receive the bundled animal
+  portrait from `/avatars/default-raven.png`. API responses include absolute
+  avatar URLs for profiles and forum authors, using the required `PUBLIC_BASE_URL`. Send `avatarUrl: null` to restore the default;
+  existing custom avatars are preserved. Broken custom images fall back to the
+  default in the web console.
+- **Avatar catalogue:** public `GET /api/avatars` (SDK: `orbit.avatars.list()`) returns
+  preset IDs, names, absolute image URLs, and the default marker. Presets are
+  bundled product assets and work without demo seeding. Save a preset's `url`
+  through the existing `avatarUrl` profile field, just like an uploaded or
+  externally hosted image.
 
-For an existing installation, back up the database and uploads, then run
-`npm run prisma:generate` and `npx prisma migrate deploy` from `api/` before
-restarting the API. The optional-email migration preserves existing accounts.
+This project is pre-release: no compatibility aliases or legacy seed repairs are maintained. See the [usage guide](docs/usage.md) for explicit development database reset and verification commands.
 
 ## TypeScript client
 
 ```ts
 import { createTeamOrbitClient } from '@goatcheese/team-orbit-client';
 
-const orbit = createTeamOrbitClient({ baseUrl: 'http://localhost:3000' });
-await orbit.auth.login('admin', 'password123');
+const orbit = createTeamOrbitClient({ baseUrl: 'https://orbit.example.com' });
+await orbit.auth.login('your-username', 'your-password');
 const { items } = await orbit.news.list();
 ```
 

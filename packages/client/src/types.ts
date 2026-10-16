@@ -4,6 +4,7 @@ type Schemas = components['schemas'];
 
 /** User records always include email; it is null when no address is supplied. */
 export type User = Schemas['UserDto'];
+export type AvatarPreset = Schemas['AvatarPresetDto'];
 /** Explicit login selector; omit it to infer email from an @ in the identifier. */
 export type LoginMethod = 'username' | 'email';
 export type Role = User['role'];

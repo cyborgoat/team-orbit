@@ -1,3 +1,4 @@
+import { userSelect, presentUser } from '../common/media';
 import {
   BadRequestException,
   ConflictException,
@@ -14,18 +15,6 @@ import {
   RegisterDto,
   UpdateProfileDto,
 } from './dto/auth.dto';
-
-const userSelect = {
-  id: true,
-  username: true,
-  fullName: true,
-  email: true,
-  role: true,
-  status: true,
-  avatarUrl: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
 
 @Injectable()
 export class AuthService {
@@ -47,7 +36,7 @@ export class AuthService {
         },
         select: userSelect,
       });
-      return user;
+      return presentUser(user);
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
@@ -83,7 +72,7 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       accessToken: await this.jwt.signAsync(payload),
-      user: {
+      user: presentUser({
         id: user.id,
         username: user.username,
         fullName: user.fullName,
@@ -93,28 +82,34 @@ export class AuthService {
         avatarUrl: user.avatarUrl,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-      },
+      }),
     };
   }
 
   async me(userId: string) {
-    return this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      select: userSelect,
-    });
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: userId },
+        select: userSelect,
+      })
+      .then(presentUser);
   }
 
   async updateMe(userId: string, dto: UpdateProfileDto) {
     try {
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          ...(dto.fullName !== undefined ? { fullName: dto.fullName } : {}),
-          ...(dto.email !== undefined ? { email: dto.email } : {}),
-          ...(dto.avatarUrl !== undefined ? { avatarUrl: dto.avatarUrl } : {}),
-        },
-        select: userSelect,
-      });
+      return await this.prisma.user
+        .update({
+          where: { id: userId },
+          data: {
+            ...(dto.fullName !== undefined ? { fullName: dto.fullName } : {}),
+            ...(dto.email !== undefined ? { email: dto.email } : {}),
+            ...(dto.avatarUrl !== undefined
+              ? { avatarUrl: dto.avatarUrl }
+              : {}),
+          },
+          select: userSelect,
+        })
+        .then(presentUser);
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&

@@ -13,9 +13,19 @@ function mockFetch(handler) {
   return { fetch, calls };
 }
 
+test('avatar presets are available without signing in', async () => {
+  const items = [{ id: 'grumpy-raven', name: 'Grumpy Raven', url: 'https://orbit.example/avatars/default-raven.png', isDefault: true }];
+  const { fetch, calls } = mockFetch(() => ({ body: { items } }));
+  const orbit = createTeamOrbitClient({ baseUrl: 'https://orbit.example', fetch });
+  assert.deepEqual(await orbit.avatars.list(), { items });
+  assert.equal(calls[0].method, 'GET');
+  assert.equal(new URL(calls[0].url).pathname, '/api/avatars');
+  assert.equal(calls[0].headers.get('authorization'), null);
+});
+
 test('login stores the token and sends it on later requests', async () => {
   const { fetch, calls } = mockFetch((req) =>
-    new URL(req.url).pathname === '/auth/login' ? { body: { accessToken: 'abc' } } : { body: { id: '1' } },
+    new URL(req.url).pathname === '/api/auth/login' ? { body: { accessToken: 'abc' } } : { body: { id: '1' } },
   );
   const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
   await orbit.auth.login('a@b.c', 'pw');
@@ -45,7 +55,7 @@ test('helpers throw TeamOrbitError with joined validation messages', async () =>
 test('raw methods still return { error } without throwing', async () => {
   const { fetch } = mockFetch(() => ({ status: 401, body: { statusCode: 401, message: 'Unauthorized' } }));
   const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
-  const { data, error, response } = await orbit.GET('/auth/me');
+  const { data, error, response } = await orbit.GET('/api/auth/me');
   assert.equal(data, undefined);
   assert.equal(error.message, 'Unauthorized');
   assert.equal(response.status, 401);
@@ -64,10 +74,10 @@ test('iterate walks every page', async () => {
 });
 
 test('upload sends multipart form data', async () => {
-  const { fetch, calls } = mockFetch(() => ({ body: { url: '/uploads/x.png' } }));
+  const { fetch, calls } = mockFetch(() => ({ body: { url: '/api/uploads/x.png' } }));
   const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
   const res = await orbit.uploads.upload(new Blob(['hi'], { type: 'image/png' }), 'x.png');
-  assert.equal(res.url, '/uploads/x.png');
+  assert.equal(res.url, '/api/uploads/x.png');
   assert.match(calls[0].headers.get('content-type'), /multipart\/form-data/);
 });
 
@@ -76,12 +86,12 @@ test('vote and path params are wired correctly', async () => {
   const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
   await orbit.forum.votePost('p1', 1);
   assert.equal(calls[0].method, 'PUT');
-  assert.equal(new URL(calls[0].url).pathname, '/forum-posts/p1/vote');
+  assert.equal(new URL(calls[0].url).pathname, '/api/forum-posts/p1/vote');
   assert.deepEqual(await calls[0].json(), { value: 1 });
 });
 
 
-test('login accepts username and explicit email mode without breaking legacy email calls', async () => {
+test('login accepts username and explicit email mode with optional email inference', async () => {
   const { fetch, calls } = mockFetch(() => ({ body: { accessToken: 'abc' } }));
   const orbit = createTeamOrbitClient({ baseUrl: 'http://x', fetch });
   await orbit.auth.login('member', 'secret');

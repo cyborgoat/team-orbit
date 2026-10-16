@@ -1,3 +1,4 @@
+import { MediaInput } from '../../common/media';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PageMetaDto, UserSummaryDto } from '../../common/dto/response.dto';
 import { IsDateString, IsOptional, IsString, MinLength } from 'class-validator';
@@ -26,8 +27,8 @@ export class CreateEventDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  coverImageUrl?: string;
+  @MediaInput()
+  coverImageUrl?: string | null;
 }
 
 export class UpdateEventDto extends PartialType(CreateEventDto) {}

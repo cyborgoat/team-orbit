@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { uploadImage } from '@/lib/api'
+import { useRef, useState } from 'react'
 import { ImageIcon, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { api } from '@/lib/utils'
 
 export function ImageUpload({
   value,
@@ -13,6 +13,7 @@ export function ImageUpload({
   onChange: (url: string) => void
   onUploadingChange?: (uploading: boolean) => void
 }) {
+  const input = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
   async function onFile(file: File | null) {
@@ -20,12 +21,7 @@ export function ImageUpload({
     setUploading(true)
     onUploadingChange?.(true)
     try {
-      const form = new FormData()
-      form.append('file', file)
-      const res = await api<{ url: string }>('/uploads', {
-        method: 'POST',
-        body: form,
-      })
+      const res = await uploadImage(file)
       onChange(res.url)
       toast.success('Image uploaded')
     } catch (e) {
@@ -39,28 +35,45 @@ export function ImageUpload({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="outline" disabled={uploading} asChild>
-          <label className="cursor-pointer">
-            <Upload />
-            {uploading ? 'Uploading…' : 'Choose image'}
-            <input
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              disabled={uploading}
-              onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-            />
-          </label>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={uploading}
+          onClick={() => input.current?.click()}
+        >
+          <Upload />
+          {uploading ? 'Uploading…' : 'Choose image'}
         </Button>
+        <input
+          ref={input}
+          type="file"
+          accept="image/*"
+          aria-label="Upload cover image"
+          className="sr-only"
+          disabled={uploading}
+          onChange={(event) => {
+            void onFile(event.target.files?.[0] ?? null)
+            event.target.value = ''
+          }}
+        />
         {value ? (
-          <Button type="button" variant="ghost" size="sm" onClick={() => onChange('')}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onChange('')}
+          >
             Remove
           </Button>
         ) : null}
       </div>
       {value ? (
         <div className="overflow-hidden rounded-lg border bg-muted/30">
-          <img src={value} alt="Upload preview" className="h-36 w-full object-cover" />
+          <img
+            src={value}
+            alt="Upload preview"
+            className="h-36 w-full object-cover"
+          />
         </div>
       ) : (
         <div className="flex h-28 items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground">

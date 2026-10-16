@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/register": {
+    "/api/auth/register": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/login": {
+    "/api/auth/login": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/me": {
+    "/api/auth/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -68,7 +68,7 @@ export interface paths {
         patch: operations["AuthController_updateMe"];
         trace?: never;
     };
-    "/auth/change-password": {
+    "/api/auth/change-password": {
         parameters: {
             query?: never;
             header?: never;
@@ -84,7 +84,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users": {
+    "/api/users": {
         parameters: {
             query?: never;
             header?: never;
@@ -100,7 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/{id}": {
+    "/api/users/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -116,7 +116,23 @@ export interface paths {
         patch: operations["UsersController_update"];
         trace?: never;
     };
-    "/announcements": {
+    "/api/avatars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AvatarsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/announcements": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,7 +148,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/announcements/{id}": {
+    "/api/announcements/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -148,7 +164,7 @@ export interface paths {
         patch: operations["AnnouncementsController_update"];
         trace?: never;
     };
-    "/notifications": {
+    "/api/notifications": {
         parameters: {
             query?: never;
             header?: never;
@@ -164,7 +180,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/notifications/{id}/read": {
+    "/api/notifications/{id}/read": {
         parameters: {
             query?: never;
             header?: never;
@@ -180,7 +196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events": {
+    "/api/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -196,7 +212,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/{id}": {
+    "/api/events/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -212,7 +228,7 @@ export interface paths {
         patch: operations["EventsController_update"];
         trace?: never;
     };
-    "/news": {
+    "/api/news": {
         parameters: {
             query?: never;
             header?: never;
@@ -228,7 +244,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/news/{id}": {
+    "/api/news/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -244,7 +260,7 @@ export interface paths {
         patch: operations["NewsController_update"];
         trace?: never;
     };
-    "/blog-posts": {
+    "/api/blog-posts": {
         parameters: {
             query?: never;
             header?: never;
@@ -260,7 +276,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/blog-posts/{id}": {
+    "/api/blog-posts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -276,7 +292,7 @@ export interface paths {
         patch: operations["BlogController_update"];
         trace?: never;
     };
-    "/forum-posts": {
+    "/api/forum-posts": {
         parameters: {
             query?: never;
             header?: never;
@@ -292,7 +308,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/forum-posts/{id}": {
+    "/api/forum-posts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -308,7 +324,7 @@ export interface paths {
         patch: operations["ForumController_update"];
         trace?: never;
     };
-    "/forum-posts/{id}/comments": {
+    "/api/forum-posts/{id}/comments": {
         parameters: {
             query?: never;
             header?: never;
@@ -324,7 +340,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/forum-posts/{id}/vote": {
+    "/api/forum-posts/{id}/vote": {
         parameters: {
             query?: never;
             header?: never;
@@ -340,7 +356,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/forum-comments/{id}": {
+    "/api/forum-comments/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -356,7 +372,7 @@ export interface paths {
         patch: operations["ForumController_updateComment"];
         trace?: never;
     };
-    "/forum-comments/{id}/vote": {
+    "/api/forum-comments/{id}/vote": {
         parameters: {
             query?: never;
             header?: never;
@@ -372,7 +388,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/uploads": {
+    "/api/uploads": {
         parameters: {
             query?: never;
             header?: never;
@@ -388,7 +404,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/health": {
+    "/api/health": {
         parameters: {
             query?: never;
             header?: never;
@@ -432,25 +448,21 @@ export interface components {
             role: "SUPERUSER" | "ADMIN" | "USER";
             /** @enum {string} */
             status: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED" | "DELETED";
-            avatarUrl: string | null;
+            /** @description Absolute effective avatar URL, including the default when unset. */
+            avatarUrl: string;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
         };
         LoginDto: {
-            /**
-             * @description Provide exactly one of username or email
-             * @example admin
-             */
+            /** @description Provide exactly one of username or email */
             username?: string;
             /**
              * Format: email
              * @description Alternative to username
-             * @example admin@teamorbit.local
              */
             email?: string;
-            /** @example password123 */
             password: string;
         };
         LoginResponseDto: {
@@ -461,6 +473,7 @@ export interface components {
             fullName?: string;
             /** Format: email */
             email?: string | null;
+            /** @description Custom avatar URL; null restores the default animal avatar. */
             avatarUrl?: string | null;
         };
         ChangePasswordDto: {
@@ -487,7 +500,8 @@ export interface components {
             role?: "SUPERUSER" | "ADMIN" | "USER";
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED" | "DELETED";
-            avatarUrl?: string;
+            /** @description Custom avatar URL; null restores the default animal avatar. */
+            avatarUrl?: string | null;
         };
         UpdateUserDto: {
             username?: string;
@@ -499,9 +513,21 @@ export interface components {
             role?: "SUPERUSER" | "ADMIN" | "USER";
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED" | "DELETED";
-            avatarUrl?: string;
+            /** @description Custom avatar URL; null restores the default animal avatar. */
+            avatarUrl?: string | null;
+        };
+        AvatarPresetDto: {
+            id: string;
+            name: string;
+            /** @description Absolute public image URL. */
+            url: string;
+            isDefault: boolean;
+        };
+        AvatarPresetsDto: {
+            items: components["schemas"]["AvatarPresetDto"][];
         };
         UserSummaryDto: {
+            avatarUrl: string;
             id: string;
             username: string;
             fullName: string;
@@ -530,16 +556,6 @@ export interface components {
         UpdateAnnouncementDto: {
             title?: string;
             description?: string;
-        };
-        AnnouncementRecordDto: {
-            id: string;
-            title: string;
-            description: string;
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
         };
         NotificationDto: {
             id: string;
@@ -596,7 +612,7 @@ export interface components {
             startAt: string;
             endAt: string;
             location: string;
-            coverImageUrl?: string;
+            coverImageUrl?: string | null;
         };
         UpdateEventDto: {
             title?: string;
@@ -604,23 +620,7 @@ export interface components {
             startAt?: string;
             endAt?: string;
             location?: string;
-            coverImageUrl?: string;
-        };
-        EventRecordDto: {
-            id: string;
-            title: string;
-            description: string;
-            /** Format: date-time */
-            startAt: string;
-            /** Format: date-time */
-            endAt: string;
-            location: string;
-            coverImageUrl: string | null;
-            createdById: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
+            coverImageUrl?: string | null;
         };
         NewsDto: {
             id: string;
@@ -647,28 +647,14 @@ export interface components {
             /** @description Markdown content */
             content: string;
             tags?: string[];
-            coverImageUrl?: string;
+            coverImageUrl?: string | null;
         };
         UpdateNewsDto: {
             title?: string;
             /** @description Markdown content */
             content?: string;
             tags?: string[];
-            coverImageUrl?: string;
-        };
-        NewsDeletedDto: {
-            id: string;
-            title: string;
-            /** @description Markdown content */
-            content: string;
-            coverImageUrl: string | null;
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @description JSON-encoded string array */
-            tags: string;
+            coverImageUrl?: string | null;
         };
         BlogPostDto: {
             id: string;
@@ -695,34 +681,20 @@ export interface components {
             /** @description Markdown content */
             content: string;
             tags?: string[];
-            coverImageUrl?: string;
+            coverImageUrl?: string | null;
         };
         UpdateBlogPostDto: {
             title?: string;
             /** @description Markdown content */
             content?: string;
             tags?: string[];
-            coverImageUrl?: string;
-        };
-        BlogPostDeletedDto: {
-            id: string;
-            title: string;
-            /** @description Markdown content */
-            content: string;
-            coverImageUrl: string | null;
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @description JSON-encoded string array */
-            tags: string;
+            coverImageUrl?: string | null;
         };
         ForumAuthorDto: {
             id: string;
             username: string;
             fullName: string;
-            avatarUrl: string | null;
+            avatarUrl: string;
         };
         ForumPostSummaryDto: {
             id: string;
@@ -805,7 +777,7 @@ export interface components {
         };
         CreateForumPostDto: {
             title: string;
-            /** @description Markdown body; embed images as ![](/uploads/...) */
+            /** @description Markdown body; use absolute image URLs returned by uploads */
             content: string;
         };
         ForumPostCreatedDto: {
@@ -829,7 +801,7 @@ export interface components {
         };
         UpdateForumPostDto: {
             title?: string;
-            /** @description Markdown body; embed images as ![](/uploads/...) */
+            /** @description Markdown body; use absolute image URLs returned by uploads */
             content?: string;
         };
         ForumPostDto: {
@@ -1075,11 +1047,10 @@ export interface operations {
     UsersController_findAll: {
         parameters: {
             query?: {
+                status?: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED" | "DELETED";
                 page?: number;
                 limit?: number;
                 q?: string;
-                tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1181,7 +1152,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserDto"];
+                    "application/json": components["schemas"]["OkDto"];
                 };
             };
             default: {
@@ -1227,14 +1198,32 @@ export interface operations {
             };
         };
     };
+    AvatarsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Available product avatar presets. Public endpoint; no authentication required. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvatarPresetsDto"];
+                };
+            };
+        };
+    };
     AnnouncementsController_findAll: {
         parameters: {
             query?: {
                 page?: number;
                 limit?: number;
                 q?: string;
-                tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1336,7 +1325,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AnnouncementRecordDto"];
+                    "application/json": components["schemas"]["OkDto"];
                 };
             };
             default: {
@@ -1388,8 +1377,6 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 q?: string;
-                tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1450,8 +1437,6 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 q?: string;
-                tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1553,7 +1538,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventRecordDto"];
+                    "application/json": components["schemas"]["OkDto"];
                 };
             };
             default: {
@@ -1606,7 +1591,6 @@ export interface operations {
                 limit?: number;
                 q?: string;
                 tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1708,7 +1692,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["NewsDeletedDto"];
+                    "application/json": components["schemas"]["OkDto"];
                 };
             };
             default: {
@@ -1761,7 +1745,6 @@ export interface operations {
                 limit?: number;
                 q?: string;
                 tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;
@@ -1863,7 +1846,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BlogPostDeletedDto"];
+                    "application/json": components["schemas"]["OkDto"];
                 };
             };
             default: {
@@ -1915,8 +1898,6 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 q?: string;
-                tag?: string;
-                status?: string;
             };
             header?: never;
             path?: never;

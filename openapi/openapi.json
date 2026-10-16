@@ -15,7 +15,7 @@
         ]
       }
     },
-    "/auth/register": {
+    "/api/auth/register": {
       "post": {
         "operationId": "AuthController_register",
         "parameters": [],
@@ -56,7 +56,7 @@
         ]
       }
     },
-    "/auth/login": {
+    "/api/auth/login": {
       "post": {
         "operationId": "AuthController_login",
         "parameters": [],
@@ -97,7 +97,7 @@
         ]
       }
     },
-    "/auth/me": {
+    "/api/auth/me": {
       "get": {
         "operationId": "AuthController_me",
         "parameters": [],
@@ -177,7 +177,7 @@
         ]
       }
     },
-    "/auth/change-password": {
+    "/api/auth/change-password": {
       "post": {
         "operationId": "AuthController_changePassword",
         "parameters": [],
@@ -223,10 +223,25 @@
         ]
       }
     },
-    "/users": {
+    "/api/users": {
       "get": {
         "operationId": "UsersController_findAll",
         "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE",
+                "PENDING",
+                "SUSPENDED",
+                "DELETED"
+              ]
+            }
+          },
           {
             "name": "page",
             "required": false,
@@ -250,22 +265,6 @@
           },
           {
             "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -349,7 +348,7 @@
         ]
       }
     },
-    "/users/{id}": {
+    "/api/users/{id}": {
       "get": {
         "operationId": "UsersController_findOne",
         "parameters": [
@@ -464,7 +463,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDto"
+                  "$ref": "#/components/schemas/OkDto"
                 }
               }
             }
@@ -490,7 +489,28 @@
         ]
       }
     },
-    "/announcements": {
+    "/api/avatars": {
+      "get": {
+        "operationId": "AvatarsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Available product avatar presets. Public endpoint; no authentication required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarPresetsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "avatars"
+        ]
+      }
+    },
+    "/api/announcements": {
       "get": {
         "operationId": "AnnouncementsController_findAll",
         "parameters": [
@@ -517,22 +537,6 @@
           },
           {
             "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -616,7 +620,7 @@
         ]
       }
     },
-    "/announcements/{id}": {
+    "/api/announcements/{id}": {
       "get": {
         "operationId": "AnnouncementsController_findOne",
         "parameters": [
@@ -731,7 +735,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnnouncementRecordDto"
+                  "$ref": "#/components/schemas/OkDto"
                 }
               }
             }
@@ -757,7 +761,7 @@
         ]
       }
     },
-    "/notifications": {
+    "/api/notifications": {
       "get": {
         "operationId": "NotificationsController_list",
         "parameters": [
@@ -784,22 +788,6 @@
           },
           {
             "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -839,7 +827,7 @@
         ]
       }
     },
-    "/notifications/{id}/read": {
+    "/api/notifications/{id}/read": {
       "post": {
         "operationId": "NotificationsController_markRead",
         "parameters": [
@@ -884,7 +872,7 @@
         ]
       }
     },
-    "/events": {
+    "/api/events": {
       "get": {
         "operationId": "EventsController_findAll",
         "parameters": [
@@ -911,22 +899,6 @@
           },
           {
             "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -1010,7 +982,7 @@
         ]
       }
     },
-    "/events/{id}": {
+    "/api/events/{id}": {
       "get": {
         "operationId": "EventsController_findOne",
         "parameters": [
@@ -1125,7 +1097,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EventRecordDto"
+                  "$ref": "#/components/schemas/OkDto"
                 }
               }
             }
@@ -1151,7 +1123,7 @@
         ]
       }
     },
-    "/news": {
+    "/api/news": {
       "get": {
         "operationId": "NewsController_findAll",
         "parameters": [
@@ -1186,14 +1158,6 @@
           },
           {
             "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -1277,7 +1241,7 @@
         ]
       }
     },
-    "/news/{id}": {
+    "/api/news/{id}": {
       "get": {
         "operationId": "NewsController_findOne",
         "parameters": [
@@ -1392,7 +1356,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NewsDeletedDto"
+                  "$ref": "#/components/schemas/OkDto"
                 }
               }
             }
@@ -1418,7 +1382,7 @@
         ]
       }
     },
-    "/blog-posts": {
+    "/api/blog-posts": {
       "get": {
         "operationId": "BlogController_findAll",
         "parameters": [
@@ -1453,14 +1417,6 @@
           },
           {
             "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -1544,7 +1500,7 @@
         ]
       }
     },
-    "/blog-posts/{id}": {
+    "/api/blog-posts/{id}": {
       "get": {
         "operationId": "BlogController_findOne",
         "parameters": [
@@ -1659,7 +1615,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BlogPostDeletedDto"
+                  "$ref": "#/components/schemas/OkDto"
                 }
               }
             }
@@ -1685,7 +1641,7 @@
         ]
       }
     },
-    "/forum-posts": {
+    "/api/forum-posts": {
       "get": {
         "operationId": "ForumController_findAll",
         "parameters": [
@@ -1712,22 +1668,6 @@
           },
           {
             "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
             "required": false,
             "in": "query",
             "schema": {
@@ -1811,7 +1751,7 @@
         ]
       }
     },
-    "/forum-posts/{id}": {
+    "/api/forum-posts/{id}": {
       "get": {
         "operationId": "ForumController_findOne",
         "parameters": [
@@ -1952,7 +1892,7 @@
         ]
       }
     },
-    "/forum-posts/{id}/comments": {
+    "/api/forum-posts/{id}/comments": {
       "post": {
         "operationId": "ForumController_createComment",
         "parameters": [
@@ -2007,7 +1947,7 @@
         ]
       }
     },
-    "/forum-posts/{id}/vote": {
+    "/api/forum-posts/{id}/vote": {
       "put": {
         "operationId": "ForumController_votePost",
         "parameters": [
@@ -2062,7 +2002,7 @@
         ]
       }
     },
-    "/forum-comments/{id}": {
+    "/api/forum-comments/{id}": {
       "patch": {
         "operationId": "ForumController_updateComment",
         "parameters": [
@@ -2160,7 +2100,7 @@
         ]
       }
     },
-    "/forum-comments/{id}/vote": {
+    "/api/forum-comments/{id}/vote": {
       "put": {
         "operationId": "ForumController_voteComment",
         "parameters": [
@@ -2215,7 +2155,7 @@
         ]
       }
     },
-    "/uploads": {
+    "/api/uploads": {
       "post": {
         "operationId": "UploadsController_upload",
         "parameters": [],
@@ -2267,7 +2207,7 @@
         ]
       }
     },
-    "/health": {
+    "/api/health": {
       "get": {
         "operationId": "HealthController_check",
         "parameters": [],
@@ -2410,7 +2350,7 @@
           },
           "avatarUrl": {
             "type": "string",
-            "nullable": true
+            "description": "Absolute effective avatar URL, including the default when unset."
           },
           "createdAt": {
             "format": "date-time",
@@ -2439,19 +2379,16 @@
           "username": {
             "type": "string",
             "minLength": 3,
-            "example": "admin",
             "description": "Provide exactly one of username or email"
           },
           "email": {
             "type": "string",
             "format": "email",
-            "example": "admin@teamorbit.local",
             "description": "Alternative to username"
           },
           "password": {
             "type": "string",
-            "minLength": 6,
-            "example": "password123"
+            "minLength": 6
           }
         },
         "required": [
@@ -2487,7 +2424,8 @@
           },
           "avatarUrl": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Custom avatar URL; null restores the default animal avatar."
           }
         }
       },
@@ -2584,7 +2522,9 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true,
+            "description": "Custom avatar URL; null restores the default animal avatar."
           }
         },
         "required": [
@@ -2631,13 +2571,56 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true,
+            "description": "Custom avatar URL; null restores the default animal avatar."
           }
         }
+      },
+      "AvatarPresetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Absolute public image URL."
+          },
+          "isDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "isDefault"
+        ]
+      },
+      "AvatarPresetsDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvatarPresetDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
       },
       "UserSummaryDto": {
         "type": "object",
         "properties": {
+          "avatarUrl": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -2649,6 +2632,7 @@
           }
         },
         "required": [
+          "avatarUrl",
           "id",
           "username",
           "fullName"
@@ -2746,39 +2730,6 @@
             "minLength": 1
           }
         }
-      },
-      "AnnouncementRecordDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "authorId": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "title",
-          "description",
-          "authorId",
-          "createdAt",
-          "updatedAt"
-        ]
       },
       "NotificationDto": {
         "type": "object",
@@ -2974,7 +2925,8 @@
             "type": "string"
           },
           "coverImageUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -3005,61 +2957,10 @@
             "type": "string"
           },
           "coverImageUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "EventRecordDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "startAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "endAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
-          "coverImageUrl": {
             "type": "string",
             "nullable": true
-          },
-          "createdById": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "description",
-          "startAt",
-          "endAt",
-          "location",
-          "coverImageUrl",
-          "createdById",
-          "createdAt",
-          "updatedAt"
-        ]
+        }
       },
       "NewsDto": {
         "type": "object",
@@ -3155,7 +3056,8 @@
             }
           },
           "coverImageUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -3181,53 +3083,10 @@
             }
           },
           "coverImageUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "NewsDeletedDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "content": {
-            "type": "string",
-            "description": "Markdown content"
-          },
-          "coverImageUrl": {
             "type": "string",
             "nullable": true
-          },
-          "authorId": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "tags": {
-            "type": "string",
-            "description": "JSON-encoded string array"
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "content",
-          "coverImageUrl",
-          "authorId",
-          "createdAt",
-          "updatedAt",
-          "tags"
-        ]
+        }
       },
       "BlogPostDto": {
         "type": "object",
@@ -3323,7 +3182,8 @@
             }
           },
           "coverImageUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -3349,53 +3209,10 @@
             }
           },
           "coverImageUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "BlogPostDeletedDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "content": {
-            "type": "string",
-            "description": "Markdown content"
-          },
-          "coverImageUrl": {
             "type": "string",
             "nullable": true
-          },
-          "authorId": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "tags": {
-            "type": "string",
-            "description": "JSON-encoded string array"
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "content",
-          "coverImageUrl",
-          "authorId",
-          "createdAt",
-          "updatedAt",
-          "tags"
-        ]
+        }
       },
       "ForumAuthorDto": {
         "type": "object",
@@ -3410,8 +3227,7 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "required": [
@@ -3684,7 +3500,7 @@
           "content": {
             "type": "string",
             "minLength": 1,
-            "description": "Markdown body; embed images as ![](/uploads/...)"
+            "description": "Markdown body; use absolute image URLs returned by uploads"
           }
         },
         "required": [
@@ -3758,7 +3574,7 @@
           "content": {
             "type": "string",
             "minLength": 1,
-            "description": "Markdown body; embed images as ![](/uploads/...)"
+            "description": "Markdown body; use absolute image URLs returned by uploads"
           }
         }
       },

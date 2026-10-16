@@ -1,3 +1,4 @@
+import { MediaInput } from '../../common/media';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PageMetaDto, UserSummaryDto } from '../../common/dto/response.dto';
 import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
@@ -20,8 +21,8 @@ export class CreateNewsDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  coverImageUrl?: string;
+  @MediaInput()
+  coverImageUrl?: string | null;
 }
 
 export class UpdateNewsDto extends PartialType(CreateNewsDto) {}
@@ -55,12 +56,6 @@ export class NewsDto extends NewsBaseDto {
 
   @ApiProperty({ type: UserSummaryDto })
   author: UserSummaryDto;
-}
-
-/** Row returned by DELETE; `tags` is the raw JSON string stored in the database. */
-export class NewsDeletedDto extends NewsBaseDto {
-  @ApiProperty({ description: 'JSON-encoded string array' })
-  tags: string;
 }
 
 export class PaginatedNewsListDto extends PageMetaDto {

@@ -25,12 +25,11 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import {
   CreateEventDto,
   EventDto,
-  EventRecordDto,
   PaginatedEventsDto,
   UpdateEventDto,
 } from './dto/event.dto';
 import { EventsService } from './events.service';
-import { ErrorDto } from '../common/dto/response.dto';
+import { OkDto, ErrorDto } from '../common/dto/response.dto';
 
 @ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('events')
@@ -68,7 +67,7 @@ export class EventsController {
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  @ApiOkResponse({ type: EventRecordDto })
+  @ApiOkResponse({ type: OkDto })
   remove(@Param('id') id: string) {
     return this.events.remove(id);
   }

@@ -1,4 +1,10 @@
-import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
+import { queryKeys } from '@/lib/query-keys'
+import {
+  Link,
+  Outlet,
+  useNavigate,
+  useRouterState,
+} from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Bell,
@@ -16,7 +22,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useNotificationsSocket } from '@/hooks/use-notifications-socket'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -28,11 +34,17 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Toaster } from '@/components/ui/sonner'
-import { api, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { orbit } from '@/lib/api'
 
 const navItems = [
   { to: '/', label: 'Home', icon: Home, exact: true },
-  { to: '/announcements', label: 'Announcements', icon: Megaphone, exact: false },
+  {
+    to: '/announcements',
+    label: 'Announcements',
+    icon: Megaphone,
+    exact: false,
+  },
   { to: '/events', label: 'Events', icon: CalendarDays, exact: false },
   { to: '/news', label: 'News', icon: Newspaper, exact: false },
   { to: '/blog', label: 'Blog', icon: FileText, exact: false },
@@ -88,19 +100,12 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const { data } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: () => api<{ items: { read: boolean }[] }>('/notifications'),
+    queryKey: queryKeys.notifications,
+    queryFn: () => orbit.notifications.list(),
     enabled: !!token,
     refetchInterval: 30_000,
   })
   const unread = data?.items.filter((n) => !n.read).length ?? 0
-  const initials =
-    user?.fullName
-      ?.split(' ')
-      .map((p) => p[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase() ?? '?'
 
   function handleLogout() {
     logout()
@@ -113,7 +118,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col gap-4 p-4">
       <div>
         <p className="text-lg font-semibold tracking-tight">Team Orbit</p>
-        <p className="text-xs text-muted-foreground">API test console</p>
+        <p className="text-xs text-muted-foreground">Team administration</p>
       </div>
       <Separator />
       <div className="flex-1 overflow-y-auto">
@@ -126,13 +131,16 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           onClick={onNavigate}
           className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-sidebar-accent/70"
         >
-          <Avatar size="sm">
-            {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt="" /> : null}
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            name={user?.fullName ?? 'User'}
+            avatarUrl={user?.avatarUrl}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{user?.fullName}</p>
-            <p className="truncate text-xs text-muted-foreground">{user?.role}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.role}
+            </p>
           </div>
         </Link>
         <Button

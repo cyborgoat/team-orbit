@@ -1,5 +1,6 @@
+import { UserStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationQueryDto {
   @IsOptional()
@@ -18,12 +19,16 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsString()
   q?: string;
+}
 
+export class ArticleQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   tag?: string;
+}
 
+export class UsersQueryDto extends PaginationQueryDto {
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 }

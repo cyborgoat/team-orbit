@@ -1,3 +1,4 @@
+import { configureApp } from './common/configure-app';
 import { NestFactory } from '@nestjs/core';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -7,7 +8,11 @@ import { createOpenApiDocument } from './swagger';
 // Builds the OpenAPI document without calling app.init()/listen(), so no
 // database connection is needed.
 async function main() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error'],
+    abortOnError: false,
+  });
+  configureApp(app);
   const out = resolve(__dirname, '../../openapi/openapi.json');
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(
@@ -17,4 +22,7 @@ async function main() {
   console.log(`Wrote ${out}`);
   process.exit(0);
 }
-void main();
+void main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});

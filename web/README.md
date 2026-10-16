@@ -5,26 +5,32 @@ TanStack Router/Query, shadcn/ui, and MDXEditor.
 
 ## Run locally
 
-Start the API on port 3000, then run from `web/`:
+Build the client with `npm --prefix packages/client run build` from the root, start the API, then run from `web/`:
 
 ```bash
+cp .env.example .env.local
+# Set API_PROXY_TARGET in .env.local to your API address.
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173. Vite proxies API requests and Socket.io to the API;
+Open http://localhost:5173. Vite proxies `/api`, `/uploads`, `/avatars`, and Socket.io to `API_PROXY_TARGET`;
 direct links and reloads on editor pages serve the web app.
 
 ## Accounts
 
 Sign in with username and password. Select **Use email instead** to sign in
-with an email attached to the account. Seed usernames are `superadmin`,
-`admin`, and `member`; their local seed password is `password123`.
+with an email attached to the account. The first administrator uses the credentials
+you configured through `BOOTSTRAP_ADMIN_*`; no accounts or passwords are built in.
 
 Registration requires username, full name, and password. Email is optional.
 New accounts remain `PENDING` until an admin activates them on **Users**.
 Settings lets members add or remove their email and update their profile or
 password. Removing email leaves username login available.
+
+Avatar settings offer five matching bird portraits from the public API catalogue,
+custom image uploads, and external HTTP/HTTPS image links. A choice is previewed
+before saving. Admins get the same picker when creating or editing users.
 
 ## Content editing and roles
 
@@ -52,3 +58,7 @@ To use an installed Google Chrome instead, run
 and does not modify database records. It starts Vite automatically if needed.
 
 See the [usage guide](../docs/usage.md) for API setup and database migration.
+
+## Real-server smoke test
+
+Run `npm run test:integration` (or `PLAYWRIGHT_CHROME=1 npm run test:integration`). It builds the API, starts temporary API/web servers on ports 3099/5189, bootstraps an isolated administrator, and verifies real uploads, Markdown, cover images, preset avatars, and direct access from another browser context. Temporary data is removed when the test server exits.

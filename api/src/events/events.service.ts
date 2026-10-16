@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+import { authorSelect, presentContent } from '../common/media';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { paginate } from '../common/utils';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -27,16 +29,16 @@ export class EventsService {
         where,
         skip,
         take,
-        orderBy: { startAt: 'asc' },
+        orderBy: [{ startAt: 'asc' }, { id: 'asc' }],
         include: {
           createdBy: {
-            select: { id: true, username: true, fullName: true },
+            select: authorSelect,
           },
         },
       }),
       this.prisma.event.count({ where }),
     ]);
-    return { items, total, page, limit: take };
+    return { items: items.map(presentContent), total, page, limit: take };
   }
 
   async findOne(id: string) {
@@ -44,60 +46,76 @@ export class EventsService {
       where: { id },
       include: {
         createdBy: {
-          select: { id: true, username: true, fullName: true },
+          select: authorSelect,
         },
       },
     });
     if (!item) throw new NotFoundException('Event not found');
-    return item;
+    return presentContent(item);
+  }
+
+  private validateDates(start: string | Date, end: string | Date) {
+    if (new Date(end) < new Date(start))
+      throw new BadRequestException('Event end must not precede its start');
   }
 
   async create(dto: CreateEventDto, createdById: string) {
-    const item = await this.prisma.event.create({
-      data: {
-        title: dto.title,
-        description: dto.description,
-        startAt: new Date(dto.startAt),
-        endAt: new Date(dto.endAt),
-        location: dto.location,
-        coverImageUrl: dto.coverImageUrl,
-        createdById,
-      },
-      include: {
-        createdBy: {
-          select: { id: true, username: true, fullName: true },
-        },
-      },
-    });
-    await this.notifications.createAndBroadcast({
-      type: 'event.created',
-      title: 'New event',
-      body: item.title,
-      resourceType: 'event',
-      resourceId: item.id,
-    });
-    return item;
+    this.validateDates(dto.startAt, dto.endAt);
+    const item = await this.notifications.createWithNotification(
+      (tx) =>
+        tx.event.create({
+          data: {
+            title: dto.title,
+            description: dto.description,
+            startAt: new Date(dto.startAt),
+            endAt: new Date(dto.endAt),
+            location: dto.location,
+            coverImageUrl: dto.coverImageUrl,
+            createdById,
+          },
+          include: {
+            createdBy: {
+              select: authorSelect,
+            },
+          },
+        }),
+      (item) => ({
+        type: 'event.created',
+        title: 'New event',
+        body: item.title,
+        resourceType: 'event',
+        resourceId: item.id,
+      }),
+    );
+    return presentContent(item);
   }
 
   async update(id: string, dto: UpdateEventDto) {
-    await this.findOne(id);
-    return this.prisma.event.update({
-      where: { id },
-      data: {
-        ...dto,
-        ...(dto.startAt ? { startAt: new Date(dto.startAt) } : {}),
-        ...(dto.endAt ? { endAt: new Date(dto.endAt) } : {}),
-      },
-      include: {
-        createdBy: {
-          select: { id: true, username: true, fullName: true },
+    const existing = await this.findOne(id);
+    this.validateDates(
+      dto.startAt ?? existing.startAt,
+      dto.endAt ?? existing.endAt,
+    );
+    return this.prisma.event
+      .update({
+        where: { id },
+        data: {
+          ...dto,
+          ...(dto.startAt ? { startAt: new Date(dto.startAt) } : {}),
+          ...(dto.endAt ? { endAt: new Date(dto.endAt) } : {}),
         },
-      },
-    });
+        include: {
+          createdBy: {
+            select: authorSelect,
+          },
+        },
+      })
+      .then(presentContent);
   }
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.event.delete({ where: { id } });
+    await this.prisma.event.delete({ where: { id } });
+    return { ok: true };
   }
 }

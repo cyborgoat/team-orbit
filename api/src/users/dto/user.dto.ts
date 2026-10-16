@@ -1,3 +1,4 @@
+import { MediaInput } from '../../common/media';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PageMetaDto } from '../../common/dto/response.dto';
 import { Transform } from 'class-transformer';
@@ -43,10 +44,14 @@ export class CreateUserDto {
   @IsEnum(UserStatus)
   status?: UserStatus;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Custom avatar URL; null restores the default animal avatar.',
+  })
   @IsOptional()
-  @IsString()
-  avatarUrl?: string;
+  @MediaInput()
+  avatarUrl?: string | null;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
@@ -70,8 +75,12 @@ export class UserDto {
   @ApiProperty({ enum: UserStatus })
   status: UserStatus;
 
-  @ApiProperty({ type: String, nullable: true })
-  avatarUrl: string | null;
+  @ApiProperty({
+    type: String,
+    description:
+      'Absolute effective avatar URL, including the default when unset.',
+  })
+  avatarUrl: string;
 
   @ApiProperty()
   createdAt: Date;

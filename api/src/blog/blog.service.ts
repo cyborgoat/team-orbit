@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  paginate,
-  parseTags,
-  stringifyTags,
-} from '../common/utils';
+import { paginate } from '../common/utils';
+import { authorSelect, presentContent } from '../common/media';
+import { tagWrite } from '../common/tags';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBlogPostDto, UpdateBlogPostDto } from './dto/blog.dto';
@@ -15,8 +13,19 @@ export class BlogService {
     private notifications: NotificationsService,
   ) {}
 
-  private map(item: { tags: string; [key: string]: unknown }) {
-    return { ...item, tags: parseTags(item.tags) };
+  private map<
+    T extends {
+      tags: { name: string }[];
+      author: {
+        id: string;
+        username: string;
+        fullName: string;
+        avatarUrl: string | null;
+      };
+      coverImageUrl: string | null;
+    },
+  >(item: T) {
+    return presentContent({ ...item, tags: item.tags.map((tag) => tag.name) });
   }
 
   async findAll(page = 1, limit = 20, q?: string, tag?: string) {
@@ -24,23 +33,21 @@ export class BlogService {
     const where = {
       ...(q
         ? {
-            OR: [
-              { title: { contains: q } },
-              { content: { contains: q } },
-            ],
+            OR: [{ title: { contains: q } }, { content: { contains: q } }],
           }
         : {}),
-      ...(tag ? { tags: { contains: tag } } : {}),
+      ...(tag ? { tags: { some: { name: tag } } } : {}),
     };
     const [rows, total] = await Promise.all([
       this.prisma.blogPost.findMany({
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         include: {
+          tags: true,
           author: {
-            select: { id: true, username: true, fullName: true },
+            select: authorSelect,
           },
         },
       }),
@@ -58,8 +65,9 @@ export class BlogService {
     const item = await this.prisma.blogPost.findUnique({
       where: { id },
       include: {
+        tags: true,
         author: {
-          select: { id: true, username: true, fullName: true },
+          select: authorSelect,
         },
       },
     });
@@ -68,27 +76,31 @@ export class BlogService {
   }
 
   async create(dto: CreateBlogPostDto, authorId: string) {
-    const item = await this.prisma.blogPost.create({
-      data: {
-        title: dto.title,
-        content: dto.content,
-        tags: stringifyTags(dto.tags),
-        coverImageUrl: dto.coverImageUrl,
-        authorId,
-      },
-      include: {
-        author: {
-          select: { id: true, username: true, fullName: true },
-        },
-      },
-    });
-    await this.notifications.createAndBroadcast({
-      type: 'blog.created',
-      title: 'New blog post',
-      body: item.title,
-      resourceType: 'blog',
-      resourceId: item.id,
-    });
+    const item = await this.notifications.createWithNotification(
+      (tx) =>
+        tx.blogPost.create({
+          data: {
+            title: dto.title,
+            content: dto.content,
+            tags: tagWrite(dto.tags),
+            coverImageUrl: dto.coverImageUrl,
+            authorId,
+          },
+          include: {
+            tags: true,
+            author: {
+              select: authorSelect,
+            },
+          },
+        }),
+      (item) => ({
+        type: 'blog.created',
+        title: 'New blog post',
+        body: item.title,
+        resourceType: 'blog',
+        resourceId: item.id,
+      }),
+    );
     return this.map(item);
   }
 
@@ -100,11 +112,14 @@ export class BlogService {
         title: dto.title,
         content: dto.content,
         coverImageUrl: dto.coverImageUrl,
-        ...(dto.tags ? { tags: stringifyTags(dto.tags) } : {}),
+        ...(dto.tags !== undefined
+          ? { tags: { set: [], ...tagWrite(dto.tags) } }
+          : {}),
       },
       include: {
+        tags: true,
         author: {
-          select: { id: true, username: true, fullName: true },
+          select: authorSelect,
         },
       },
     });
@@ -113,6 +128,7 @@ export class BlogService {
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.blogPost.delete({ where: { id } });
+    await this.prisma.blogPost.delete({ where: { id } });
+    return { ok: true };
   }
 }

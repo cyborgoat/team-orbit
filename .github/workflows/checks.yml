@@ -1,0 +1,35 @@
+name: Checks
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./ci.db
+      JWT_SECRET: ci-only-contract-export-secret
+      PUBLIC_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            api/package-lock.json
+            packages/client/package-lock.json
+            web/package-lock.json
+      - run: npm --prefix api ci
+      - run: npm --prefix api run prisma:generate
+      - run: npm --prefix packages/client ci
+      - run: npm --prefix packages/client run build
+      - run: npm --prefix web ci
+      - run: cd web && npx playwright install --with-deps chromium
+      - run: npm --prefix api run lint
+      - run: npm --prefix api test -- --runInBand
+      - run: npm --prefix api run test:seed
+      - run: npm --prefix api run test:e2e -- --runInBand
+      - run: npm --prefix packages/client test
+      - run: npm --prefix web run lint
+      - run: npm --prefix web run build
+      - run: npm --prefix web run test:e2e
+      - run: npm --prefix web run test:integration
+      - run: bash scripts/check-sdk.sh

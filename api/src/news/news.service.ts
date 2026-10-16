@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  paginate,
-  parseTags,
-  stringifyTags,
-} from '../common/utils';
+import { paginate } from '../common/utils';
+import { authorSelect, presentContent } from '../common/media';
+import { tagWrite } from '../common/tags';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNewsDto, UpdateNewsDto } from './dto/news.dto';
@@ -15,11 +13,19 @@ export class NewsService {
     private notifications: NotificationsService,
   ) {}
 
-  private map(item: {
-    tags: string;
-    [key: string]: unknown;
-  }) {
-    return { ...item, tags: parseTags(item.tags) };
+  private map<
+    T extends {
+      tags: { name: string }[];
+      author: {
+        id: string;
+        username: string;
+        fullName: string;
+        avatarUrl: string | null;
+      };
+      coverImageUrl: string | null;
+    },
+  >(item: T) {
+    return presentContent({ ...item, tags: item.tags.map((tag) => tag.name) });
   }
 
   async findAll(page = 1, limit = 20, q?: string, tag?: string) {
@@ -27,23 +33,21 @@ export class NewsService {
     const where = {
       ...(q
         ? {
-            OR: [
-              { title: { contains: q } },
-              { content: { contains: q } },
-            ],
+            OR: [{ title: { contains: q } }, { content: { contains: q } }],
           }
         : {}),
-      ...(tag ? { tags: { contains: tag } } : {}),
+      ...(tag ? { tags: { some: { name: tag } } } : {}),
     };
     const [rows, total] = await Promise.all([
       this.prisma.news.findMany({
         where,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         include: {
+          tags: true,
           author: {
-            select: { id: true, username: true, fullName: true },
+            select: authorSelect,
           },
         },
       }),
@@ -61,8 +65,9 @@ export class NewsService {
     const item = await this.prisma.news.findUnique({
       where: { id },
       include: {
+        tags: true,
         author: {
-          select: { id: true, username: true, fullName: true },
+          select: authorSelect,
         },
       },
     });
@@ -71,27 +76,31 @@ export class NewsService {
   }
 
   async create(dto: CreateNewsDto, authorId: string) {
-    const item = await this.prisma.news.create({
-      data: {
-        title: dto.title,
-        content: dto.content,
-        tags: stringifyTags(dto.tags),
-        coverImageUrl: dto.coverImageUrl,
-        authorId,
-      },
-      include: {
-        author: {
-          select: { id: true, username: true, fullName: true },
-        },
-      },
-    });
-    await this.notifications.createAndBroadcast({
-      type: 'news.created',
-      title: 'New news article',
-      body: item.title,
-      resourceType: 'news',
-      resourceId: item.id,
-    });
+    const item = await this.notifications.createWithNotification(
+      (tx) =>
+        tx.news.create({
+          data: {
+            title: dto.title,
+            content: dto.content,
+            tags: tagWrite(dto.tags),
+            coverImageUrl: dto.coverImageUrl,
+            authorId,
+          },
+          include: {
+            tags: true,
+            author: {
+              select: authorSelect,
+            },
+          },
+        }),
+      (item) => ({
+        type: 'news.created',
+        title: 'New news article',
+        body: item.title,
+        resourceType: 'news',
+        resourceId: item.id,
+      }),
+    );
     return this.map(item);
   }
 
@@ -103,11 +112,14 @@ export class NewsService {
         title: dto.title,
         content: dto.content,
         coverImageUrl: dto.coverImageUrl,
-        ...(dto.tags ? { tags: stringifyTags(dto.tags) } : {}),
+        ...(dto.tags !== undefined
+          ? { tags: { set: [], ...tagWrite(dto.tags) } }
+          : {}),
       },
       include: {
+        tags: true,
         author: {
-          select: { id: true, username: true, fullName: true },
+          select: authorSelect,
         },
       },
     });
@@ -116,6 +128,7 @@ export class NewsService {
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.news.delete({ where: { id } });
+    await this.prisma.news.delete({ where: { id } });
+    return { ok: true };
   }
 }

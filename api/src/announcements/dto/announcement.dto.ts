@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { PageMetaDto, UserSummaryDto } from '../../common/dto/response.dto';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 
 export class CreateAnnouncementDto {
   @ApiProperty()

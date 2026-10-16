@@ -25,12 +25,11 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { AnnouncementsService } from './announcements.service';
 import {
   AnnouncementDto,
-  AnnouncementRecordDto,
   CreateAnnouncementDto,
   PaginatedAnnouncementsDto,
   UpdateAnnouncementDto,
 } from './dto/announcement.dto';
-import { ErrorDto } from '../common/dto/response.dto';
+import { OkDto, ErrorDto } from '../common/dto/response.dto';
 
 @ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('announcements')
@@ -71,7 +70,7 @@ export class AnnouncementsController {
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  @ApiOkResponse({ type: AnnouncementRecordDto })
+  @ApiOkResponse({ type: OkDto })
   remove(@Param('id') id: string) {
     return this.announcements.remove(id);
   }

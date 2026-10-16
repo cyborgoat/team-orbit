@@ -72,7 +72,7 @@ model News {
   id            String   @id @default(uuid())
   title         String
   content       String
-  tags          String   @default("[]")
+  tags          Tag[]
   coverImageUrl String?
   authorId      String
   author        User     @relation(fields: [authorId], references: [id])
@@ -84,7 +84,7 @@ model BlogPost {
   id            String   @id @default(uuid())
   title         String
   content       String
-  tags          String   @default("[]")
+  tags          Tag[]
   coverImageUrl String?
   authorId      String
   author        User     @relation(fields: [authorId], references: [id])
@@ -169,4 +169,11 @@ model ForumCommentVote {
   updatedAt DateTime     @updatedAt
 
   @@unique([userId, commentId])
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String @unique
+  news News[]
+  blogPosts BlogPost[]
 }

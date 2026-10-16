@@ -20,7 +20,7 @@ import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination.dto';
+import { UsersQueryDto } from '../common/dto/pagination.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
 import {
   CreateUserDto,
@@ -29,7 +29,7 @@ import {
   UserDto,
 } from './dto/user.dto';
 import { UsersService } from './users.service';
-import { ErrorDto } from '../common/dto/response.dto';
+import { OkDto, ErrorDto } from '../common/dto/response.dto';
 
 @ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('users')
@@ -42,7 +42,7 @@ export class UsersController {
   @Get()
   @Roles(Role.ADMIN, Role.SUPERUSER)
   @ApiOkResponse({ type: PaginatedUsersDto })
-  findAll(@Query() query: PaginationQueryDto) {
+  findAll(@Query() query: UsersQueryDto) {
     return this.users.findAll(query.page, query.limit, query.q, query.status);
   }
 
@@ -73,7 +73,7 @@ export class UsersController {
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  @ApiOkResponse({ type: UserDto })
+  @ApiOkResponse({ type: OkDto })
   remove(@Param('id') id: string, @CurrentUser() user: { role: Role }) {
     return this.users.remove(id, user.role);
   }

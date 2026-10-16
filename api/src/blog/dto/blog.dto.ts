@@ -1,3 +1,4 @@
+import { MediaInput } from '../../common/media';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PageMetaDto, UserSummaryDto } from '../../common/dto/response.dto';
 import { IsArray, IsOptional, IsString, MinLength } from 'class-validator';
@@ -20,8 +21,8 @@ export class CreateBlogPostDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  coverImageUrl?: string;
+  @MediaInput()
+  coverImageUrl?: string | null;
 }
 
 export class UpdateBlogPostDto extends PartialType(CreateBlogPostDto) {}
@@ -55,12 +56,6 @@ export class BlogPostDto extends BlogPostBaseDto {
 
   @ApiProperty({ type: UserSummaryDto })
   author: UserSummaryDto;
-}
-
-/** Row returned by DELETE; `tags` is the raw JSON string stored in the database. */
-export class BlogPostDeletedDto extends BlogPostBaseDto {
-  @ApiProperty({ description: 'JSON-encoded string array' })
-  tags: string;
 }
 
 export class PaginatedBlogPostListDto extends PageMetaDto {

@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -12,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/lib/auth'
-import { getToken } from '@/lib/utils'
+import { getToken } from '@/lib/session'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: () => {
@@ -35,7 +40,8 @@ function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Sign in to Team Orbit</CardTitle>
           <CardDescription>
-            Sign in with an active account, or register a new one for admin approval.
+            Sign in with an active account, or register a new one for admin
+            approval.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -56,7 +62,9 @@ function LoginPage() {
             }}
           >
             <div className="space-y-2">
-              <Label htmlFor="identifier">{method === 'username' ? 'Username' : 'Email'}</Label>
+              <Label htmlFor="identifier">
+                {method === 'username' ? 'Username' : 'Email'}
+              </Label>
               <Input
                 id="identifier"
                 type={method === 'email' ? 'email' : 'text'}
@@ -66,9 +74,19 @@ function LoginPage() {
                 required
               />
             </div>
-            <Button type="button" variant="link" className="h-auto p-0" disabled={busy}
-              onClick={() => { setMethod(method === 'username' ? 'email' : 'username'); setIdentifier('') }}>
-              {method === 'username' ? 'Use email instead' : 'Use username instead'}
+            <Button
+              type="button"
+              variant="link"
+              className="h-auto p-0"
+              disabled={busy}
+              onClick={() => {
+                setMethod(method === 'username' ? 'email' : 'username')
+                setIdentifier('')
+              }}
+            >
+              {method === 'username'
+                ? 'Use email instead'
+                : 'Use username instead'}
             </Button>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>

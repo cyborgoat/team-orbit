@@ -20,17 +20,16 @@ import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination.dto';
+import { ArticleQueryDto } from '../common/dto/pagination.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BlogService } from './blog.service';
 import {
-  BlogPostDeletedDto,
   BlogPostDto,
   CreateBlogPostDto,
   PaginatedBlogPostListDto,
   UpdateBlogPostDto,
 } from './dto/blog.dto';
-import { ErrorDto } from '../common/dto/response.dto';
+import { OkDto, ErrorDto } from '../common/dto/response.dto';
 
 @ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('blog-posts')
@@ -42,7 +41,7 @@ export class BlogController {
 
   @Get()
   @ApiOkResponse({ type: PaginatedBlogPostListDto })
-  findAll(@Query() query: PaginationQueryDto) {
+  findAll(@Query() query: ArticleQueryDto) {
     return this.blog.findAll(query.page, query.limit, query.q, query.tag);
   }
 
@@ -68,7 +67,7 @@ export class BlogController {
 
   @Delete(':id')
   @Roles(Role.ADMIN, Role.SUPERUSER)
-  @ApiOkResponse({ type: BlogPostDeletedDto })
+  @ApiOkResponse({ type: OkDto })
   remove(@Param('id') id: string) {
     return this.blog.remove(id);
   }

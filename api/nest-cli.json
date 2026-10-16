@@ -4,7 +4,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": [{ "include": "assets/demo/**/*", "watchAssets": true }],
+    "assets": [{ "include": "assets/avatars/*.png" }],
     "plugins": [
       {
         "name": "@nestjs/swagger",

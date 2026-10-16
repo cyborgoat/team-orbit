@@ -1,3 +1,4 @@
+import { mediaUrl } from '../common/media';
 import {
   BadRequestException,
   Controller,
@@ -15,18 +16,9 @@ import {
   ApiDefaultResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { randomUUID } from 'crypto';
-import { existsSync, mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UploadResultDto } from './dto/upload.dto';
 import { ErrorDto } from '../common/dto/response.dto';
-
-const uploadRoot = join(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
-if (!existsSync(uploadRoot)) {
-  mkdirSync(uploadRoot, { recursive: true });
-}
 
 @ApiDefaultResponse({ type: ErrorDto })
 @ApiTags('uploads')
@@ -44,34 +36,14 @@ export class UploadsController {
       },
     },
   })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: uploadRoot,
-        filename: (_req, file, cb) => {
-          const ext = extname(file.originalname).toLowerCase();
-          cb(null, `${randomUUID()}${ext}`);
-        },
-      }),
-      limits: { fileSize: 5 * 1024 * 1024 },
-      fileFilter: (_req, file, cb) => {
-        if (!file.mimetype.startsWith('image/')) {
-          return cb(
-            new BadRequestException('Only image uploads are allowed') as Error,
-            false,
-          );
-        }
-        cb(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   @ApiCreatedResponse({ type: UploadResultDto })
   upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is required');
     }
     return {
-      url: `/uploads/${file.filename}`,
+      url: mediaUrl(`/uploads/${file.filename}`),
       filename: file.filename,
       mimetype: file.mimetype,
       size: file.size,

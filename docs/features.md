@@ -15,12 +15,12 @@ profile settings can add or remove it.
 | Password | bcrypt-hashed |
 | Role | `SUPERUSER`, `ADMIN`, `USER` |
 | Status | `ACTIVE`, `INACTIVE`, `PENDING`, `SUSPENDED`, `DELETED` |
-| Avatar URL | Optional, from uploads |
+| Avatar URL | Five bird presets, custom upload, external HTTP/HTTPS image link, or default reset |
 
 **Ways to add members**
 
-1. **Self-register** (`POST /auth/register`) → status `PENDING` (cannot log in until activated).
-2. **Admin create** (`POST /users`) → typically `ACTIVE` so they can sign in immediately.
+1. **Self-register** (`POST /api/auth/register`) → status `PENDING` (cannot log in until activated).
+2. **Admin create** (`POST /api/users`) → typically `ACTIVE` so they can sign in immediately.
 
 **Permissions**
 
@@ -63,7 +63,7 @@ Team discussion board with markdown posts and comments.
 
 | Capability | Notes |
 |------------|--------|
-| Posts | Any authenticated user; markdown body; images via `![](/uploads/...)` |
+| Posts | Any authenticated user; markdown body; images via absolute upload URLs |
 | Comments | Top-level + one-level replies |
 | Votes | Up/down (or clear) on posts and comments; one vote per user |
 | Moderation | Authors edit/delete their own; Admin/Superuser can moderate any |
@@ -71,7 +71,7 @@ Team discussion board with markdown posts and comments.
 
 ### Uploads
 
-Authenticated image upload; returns a public path like `/uploads/<uuid>.jpg` for use as covers, avatars, or markdown embeds.
+Authenticated image upload; returns an absolute public URL like `https://orbit.example/uploads/<uuid>.jpg` for use as covers, avatars, or markdown embeds.
 
 ### Notifications
 
@@ -85,22 +85,22 @@ All content and user routes (except register/login) require a Bearer JWT unless 
 
 | Area | Methods | Path prefix |
 |------|---------|-------------|
-| Auth | POST register/login, GET/PATCH me, POST change-password | `/auth` |
-| Users | GET/POST/PATCH/DELETE | `/users` |
-| Announcements | GET/POST/PATCH/DELETE | `/announcements` |
-| Events | GET/POST/PATCH/DELETE | `/events` |
-| News | GET/POST/PATCH/DELETE | `/news` |
-| Blog | GET/POST/PATCH/DELETE | `/blog-posts` |
-| Forum | GET/POST/PATCH/DELETE posts & comments, PUT votes | `/forum-posts`, `/forum-comments` |
-| Uploads | POST | `/uploads` |
-| Notifications | GET list, POST `:id/read` | `/notifications` |
-| Health | GET | `/health` |
+| Auth | POST register/login, GET/PATCH me, POST change-password | `/api/auth` |
+| Users | GET/POST/PATCH/DELETE | `/api/users` |
+| Announcements | GET/POST/PATCH/DELETE | `/api/announcements` |
+| Events | GET/POST/PATCH/DELETE | `/api/events` |
+| News | GET/POST/PATCH/DELETE | `/api/news` |
+| Blog | GET/POST/PATCH/DELETE | `/api/blog-posts` |
+| Forum | GET/POST/PATCH/DELETE posts & comments, PUT votes | `/api/forum-posts`, `/api/forum-comments` |
+| Uploads | POST | `/api/uploads` |
+| Notifications | GET list, POST `:id/read` | `/api/notifications` |
+| Health | GET | `/api/health` |
 | Metrics | GET | `/metrics` |
-| Swagger | UI | `/api` |
+| Swagger | UI | `/docs` |
 
 List endpoints support pagination (`page`, `limit`) and simple filters (`q`, `tag`, `status` where applicable).
 
-Interactive OpenAPI docs: http://localhost:3000/api
+Interactive OpenAPI docs: http://localhost:3000/docs
 
 ## Test UI features (`web/`)
 

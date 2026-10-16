@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "declaration": false,
+    "incremental": false
+  },
+  "include": ["prisma/**/*.ts", "test/fixtures/demo/**/*.ts"]
+}

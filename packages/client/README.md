@@ -48,7 +48,7 @@ one API identifier and remembers the returned access token.
 import type { LoginMethod, User } from '@goatcheese/team-orbit-client';
 
 await orbit.auth.login('member', password);                // username
-await orbit.auth.login('member@example.com', password);   // legacy email call
+await orbit.auth.login('member@example.com', password);   // email inferred from the identifier
 const method: LoginMethod = 'username';
 await orbit.auth.login('name@work', password, method);     // username containing @
 await orbit.auth.login('member@example.com', password, 'email');
@@ -71,7 +71,7 @@ always include `email` as `string | null`; handle `null` in consuming UIs.
 Supplied email addresses must be valid and unique. A profile update that omits
 email leaves it unchanged; `null` or an empty string removes it.
 
-Raw `POST /auth/login` requests use either `{ username, password }` or
+Raw `POST /api/auth/login` requests use either `{ username, password }` or
 `{ email, password }`; both identifiers together, or neither, return 400.
 Unknown users and wrong passwords return 401. Self-registration keeps the
 existing admin activation requirement.
@@ -105,7 +105,7 @@ for await (const item of orbit.news.iterate({ tag: 'release' })) console.log(ite
 
 // Upload an image (JPEG/PNG/etc., max 5 MB); embed the url in Markdown as ![](url)
 const { url } = await orbit.uploads.upload(file);
-// Returned URLs are relative to the API origin, not necessarily your frontend.
+// Returned URLs are absolute and publicly reachable from the API origin, not necessarily your frontend.
 const imageUrl = new URL(url, 'https://orbit.example.com').href;
 await orbit.forum.createPost({ title: 'Team photo', content: `![Team photo](${imageUrl})` });
 ```
@@ -119,7 +119,7 @@ For example, an authorized admin can promote a member without changing other fie
 await orbit.users.update(memberId, { role: 'ADMIN' });
 ```
 
-The SDK does not poll `/auth/me`; consumers should refresh it when they need to
+The SDK does not poll `/api/auth/me`; consumers should refresh it when they need to
 update role-dependent controls. The API enforces the current saved role on each
 authenticated HTTP request.
 
@@ -158,7 +158,7 @@ Network failures still reject the promise. Use this when you want to branch on e
 | `ADMIN` | Everything a `USER` can, plus manage users, promote USER to ADMIN, create/update/delete events, announcements, news and blog posts, and moderate the forum. Cannot change existing ADMIN or SUPERUSER roles. |
 | `SUPERUSER` | Everything an `ADMIN` can, plus create and modify superusers. |
 
-New accounts from `POST /auth/register` start as `PENDING` and **cannot log in** until an
+New accounts from `POST /api/auth/register` start as `PENDING` and **cannot log in** until an
 admin sets their status to `ACTIVE`. Login is rate limited to 10 requests per minute.
 
 ## API reference
@@ -172,95 +172,101 @@ under `components['schemas']`. List endpoints accept `page`, `limit` (max 100) a
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `POST` | `/auth/register` | public | `RegisterDto` | `UserDto` |
-| `POST` | `/auth/login` | public | `LoginDto` | `LoginResponseDto` |
-| `GET` | `/auth/me` | Bearer |  | `UserDto` |
-| `PATCH` | `/auth/me` | Bearer | `UpdateProfileDto` | `UserDto` |
-| `POST` | `/auth/change-password` | Bearer | `ChangePasswordDto` | `OkDto` |
+| `POST` | `/api/auth/register` | public | `RegisterDto` | `UserDto` |
+| `POST` | `/api/auth/login` | public | `LoginDto` | `LoginResponseDto` |
+| `GET` | `/api/auth/me` | Bearer |  | `UserDto` |
+| `PATCH` | `/api/auth/me` | Bearer | `UpdateProfileDto` | `UserDto` |
+| `POST` | `/api/auth/change-password` | Bearer | `ChangePasswordDto` | `OkDto` |
 
 #### users
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/users` | Bearer |  | `PaginatedUsersDto` |
-| `POST` | `/users` | Bearer | `CreateUserDto` | `UserDto` |
-| `GET` | `/users/{id}` | Bearer |  | `UserDto` |
-| `PATCH` | `/users/{id}` | Bearer | `UpdateUserDto` | `UserDto` |
-| `DELETE` | `/users/{id}` | Bearer |  | `UserDto` |
+| `GET` | `/api/users` | Bearer |  | `PaginatedUsersDto` |
+| `POST` | `/api/users` | Bearer | `CreateUserDto` | `UserDto` |
+| `GET` | `/api/users/{id}` | Bearer |  | `UserDto` |
+| `PATCH` | `/api/users/{id}` | Bearer | `UpdateUserDto` | `UserDto` |
+| `DELETE` | `/api/users/{id}` | Bearer |  | `OkDto` |
+
+#### avatars
+
+| Method | Path | Auth | Request body | Response |
+| --- | --- | --- | --- | --- |
+| `GET` | `/api/avatars` | public |  | `AvatarPresetsDto` |
 
 #### announcements
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/announcements` | Bearer |  | `PaginatedAnnouncementsDto` |
-| `POST` | `/announcements` | Bearer | `CreateAnnouncementDto` | `AnnouncementDto` |
-| `GET` | `/announcements/{id}` | Bearer |  | `AnnouncementDto` |
-| `PATCH` | `/announcements/{id}` | Bearer | `UpdateAnnouncementDto` | `AnnouncementDto` |
-| `DELETE` | `/announcements/{id}` | Bearer |  | `AnnouncementRecordDto` |
+| `GET` | `/api/announcements` | Bearer |  | `PaginatedAnnouncementsDto` |
+| `POST` | `/api/announcements` | Bearer | `CreateAnnouncementDto` | `AnnouncementDto` |
+| `GET` | `/api/announcements/{id}` | Bearer |  | `AnnouncementDto` |
+| `PATCH` | `/api/announcements/{id}` | Bearer | `UpdateAnnouncementDto` | `AnnouncementDto` |
+| `DELETE` | `/api/announcements/{id}` | Bearer |  | `OkDto` |
 
 #### notifications
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/notifications` | Bearer |  | `PaginatedNotificationsDto` |
-| `POST` | `/notifications/{id}/read` | Bearer |  | `NotificationReadDto` |
+| `GET` | `/api/notifications` | Bearer |  | `PaginatedNotificationsDto` |
+| `POST` | `/api/notifications/{id}/read` | Bearer |  | `NotificationReadDto` |
 
 #### events
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/events` | Bearer |  | `PaginatedEventsDto` |
-| `POST` | `/events` | Bearer | `CreateEventDto` | `EventDto` |
-| `GET` | `/events/{id}` | Bearer |  | `EventDto` |
-| `PATCH` | `/events/{id}` | Bearer | `UpdateEventDto` | `EventDto` |
-| `DELETE` | `/events/{id}` | Bearer |  | `EventRecordDto` |
+| `GET` | `/api/events` | Bearer |  | `PaginatedEventsDto` |
+| `POST` | `/api/events` | Bearer | `CreateEventDto` | `EventDto` |
+| `GET` | `/api/events/{id}` | Bearer |  | `EventDto` |
+| `PATCH` | `/api/events/{id}` | Bearer | `UpdateEventDto` | `EventDto` |
+| `DELETE` | `/api/events/{id}` | Bearer |  | `OkDto` |
 
 #### news
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/news` | Bearer |  | `PaginatedNewsListDto` |
-| `POST` | `/news` | Bearer | `CreateNewsDto` | `NewsDto` |
-| `GET` | `/news/{id}` | Bearer |  | `NewsDto` |
-| `PATCH` | `/news/{id}` | Bearer | `UpdateNewsDto` | `NewsDto` |
-| `DELETE` | `/news/{id}` | Bearer |  | `NewsDeletedDto` |
+| `GET` | `/api/news` | Bearer |  | `PaginatedNewsListDto` |
+| `POST` | `/api/news` | Bearer | `CreateNewsDto` | `NewsDto` |
+| `GET` | `/api/news/{id}` | Bearer |  | `NewsDto` |
+| `PATCH` | `/api/news/{id}` | Bearer | `UpdateNewsDto` | `NewsDto` |
+| `DELETE` | `/api/news/{id}` | Bearer |  | `OkDto` |
 
 #### blog-posts
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/blog-posts` | Bearer |  | `PaginatedBlogPostListDto` |
-| `POST` | `/blog-posts` | Bearer | `CreateBlogPostDto` | `BlogPostDto` |
-| `GET` | `/blog-posts/{id}` | Bearer |  | `BlogPostDto` |
-| `PATCH` | `/blog-posts/{id}` | Bearer | `UpdateBlogPostDto` | `BlogPostDto` |
-| `DELETE` | `/blog-posts/{id}` | Bearer |  | `BlogPostDeletedDto` |
+| `GET` | `/api/blog-posts` | Bearer |  | `PaginatedBlogPostListDto` |
+| `POST` | `/api/blog-posts` | Bearer | `CreateBlogPostDto` | `BlogPostDto` |
+| `GET` | `/api/blog-posts/{id}` | Bearer |  | `BlogPostDto` |
+| `PATCH` | `/api/blog-posts/{id}` | Bearer | `UpdateBlogPostDto` | `BlogPostDto` |
+| `DELETE` | `/api/blog-posts/{id}` | Bearer |  | `OkDto` |
 
 #### forum-posts
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/forum-posts` | Bearer |  | `PaginatedForumPostsDto` |
-| `POST` | `/forum-posts` | Bearer | `CreateForumPostDto` | `ForumPostCreatedDto` |
-| `GET` | `/forum-posts/{id}` | Bearer |  | `ForumPostDetailDto` |
-| `PATCH` | `/forum-posts/{id}` | Bearer | `UpdateForumPostDto` | `ForumPostDto` |
-| `DELETE` | `/forum-posts/{id}` | Bearer |  | `OkDto` |
-| `POST` | `/forum-posts/{id}/comments` | Bearer | `CreateForumCommentDto` | `ForumCommentDto` |
-| `PUT` | `/forum-posts/{id}/vote` | Bearer | `VoteDto` | `VoteResultDto` |
-| `PATCH` | `/forum-comments/{id}` | Bearer | `UpdateForumCommentDto` | `ForumCommentBaseDto` |
-| `DELETE` | `/forum-comments/{id}` | Bearer |  | `OkDto` |
-| `PUT` | `/forum-comments/{id}/vote` | Bearer | `VoteDto` | `VoteResultDto` |
+| `GET` | `/api/forum-posts` | Bearer |  | `PaginatedForumPostsDto` |
+| `POST` | `/api/forum-posts` | Bearer | `CreateForumPostDto` | `ForumPostCreatedDto` |
+| `GET` | `/api/forum-posts/{id}` | Bearer |  | `ForumPostDetailDto` |
+| `PATCH` | `/api/forum-posts/{id}` | Bearer | `UpdateForumPostDto` | `ForumPostDto` |
+| `DELETE` | `/api/forum-posts/{id}` | Bearer |  | `OkDto` |
+| `POST` | `/api/forum-posts/{id}/comments` | Bearer | `CreateForumCommentDto` | `ForumCommentDto` |
+| `PUT` | `/api/forum-posts/{id}/vote` | Bearer | `VoteDto` | `VoteResultDto` |
+| `PATCH` | `/api/forum-comments/{id}` | Bearer | `UpdateForumCommentDto` | `ForumCommentBaseDto` |
+| `DELETE` | `/api/forum-comments/{id}` | Bearer |  | `OkDto` |
+| `PUT` | `/api/forum-comments/{id}/vote` | Bearer | `VoteDto` | `VoteResultDto` |
 
 #### uploads
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `POST` | `/uploads` | Bearer | multipart | `UploadResultDto` |
+| `POST` | `/api/uploads` | Bearer | multipart | `UploadResultDto` |
 
 #### health
 
 | Method | Path | Auth | Request body | Response |
 | --- | --- | --- | --- | --- |
-| `GET` | `/health` | public |  | `HealthDto` |
+| `GET` | `/api/health` | public |  | `HealthDto` |
 <!-- api:end -->
 
 ## Not included

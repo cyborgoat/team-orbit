@@ -1,3 +1,5 @@
+import { assertCanAssignRole, assertCanModifyUser } from '../common/policies';
+import { userSelect, presentUser } from '../common/media';
 import {
   ForbiddenException,
   Injectable,
@@ -9,26 +11,14 @@ import { paginate } from '../common/utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
-const userSelect = {
-  id: true,
-  username: true,
-  fullName: true,
-  email: true,
-  role: true,
-  status: true,
-  avatarUrl: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
-
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page = 1, limit = 20, q?: string, status?: string) {
+  async findAll(page = 1, limit = 20, q?: string, status?: UserStatus) {
     const { skip, take } = paginate(page, limit);
     const where = {
-      ...(status ? { status: status as UserStatus } : {}),
+      ...(status ? { status: status } : {}),
       ...(q
         ? {
             OR: [
@@ -45,11 +35,11 @@ export class UsersService {
         select: userSelect,
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       }),
       this.prisma.user.count({ where }),
     ]);
-    return { items, total, page, limit: take };
+    return { items: items.map(presentUser), total, page, limit: take };
   }
 
   async findOne(id: string) {
@@ -58,26 +48,26 @@ export class UsersService {
       select: userSelect,
     });
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return presentUser(user);
   }
 
   async create(dto: CreateUserDto, actorRole: Role) {
-    if (dto.role === Role.SUPERUSER && actorRole !== Role.SUPERUSER) {
-      throw new ForbiddenException('Only superuser can create superusers');
-    }
+    assertCanAssignRole(actorRole, dto.role);
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    return this.prisma.user.create({
-      data: {
-        username: dto.username,
-        fullName: dto.fullName,
-        email: dto.email ?? null,
-        passwordHash,
-        role: dto.role ?? Role.USER,
-        status: dto.status ?? UserStatus.ACTIVE,
-        avatarUrl: dto.avatarUrl,
-      },
-      select: userSelect,
-    });
+    return this.prisma.user
+      .create({
+        data: {
+          username: dto.username,
+          fullName: dto.fullName,
+          email: dto.email ?? null,
+          passwordHash,
+          role: dto.role ?? Role.USER,
+          status: dto.status ?? UserStatus.ACTIVE,
+          avatarUrl: dto.avatarUrl,
+        },
+        select: userSelect,
+      })
+      .then(presentUser);
   }
 
   async update(
@@ -88,24 +78,7 @@ export class UsersService {
     const existing = await this.prisma.user.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('User not found');
 
-    if (
-      existing.role === Role.SUPERUSER &&
-      actor.role !== Role.SUPERUSER &&
-      actor.id !== id
-    ) {
-      throw new ForbiddenException('Cannot modify superuser');
-    }
-    if (dto.role === Role.SUPERUSER && actor.role !== Role.SUPERUSER) {
-      throw new ForbiddenException('Only superuser can assign superuser role');
-    }
-    if (
-      actor.role === Role.ADMIN &&
-      dto.role &&
-      dto.role !== existing.role &&
-      existing.role !== Role.USER
-    ) {
-      throw new ForbiddenException('Admins cannot change admin roles');
-    }
+    assertCanModifyUser(actor, existing, dto.role);
 
     const data: Record<string, unknown> = { ...dto };
     delete data.password;
@@ -113,11 +86,13 @@ export class UsersService {
       data.passwordHash = await bcrypt.hash(dto.password, 10);
     }
 
-    return this.prisma.user.update({
-      where: { id },
-      data,
-      select: userSelect,
-    });
+    return this.prisma.user
+      .update({
+        where: { id },
+        data,
+        select: userSelect,
+      })
+      .then(presentUser);
   }
 
   async remove(id: string, actorRole: Role) {
@@ -126,10 +101,10 @@ export class UsersService {
     if (existing.role === Role.SUPERUSER && actorRole !== Role.SUPERUSER) {
       throw new ForbiddenException('Cannot delete superuser');
     }
-    return this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id },
       data: { status: UserStatus.DELETED },
-      select: userSelect,
     });
+    return { ok: true };
   }
 }

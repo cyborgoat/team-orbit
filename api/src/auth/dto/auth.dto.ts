@@ -1,17 +1,11 @@
-import {
-  IsEmail,
-  IsOptional,
-  IsString,
-  MinLength,
-  ValidateIf,
-} from 'class-validator';
+import { MediaInput } from '../../common/media';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserDto } from '../../users/dto/user.dto';
 
 export class LoginDto {
   @ApiPropertyOptional({
-    example: 'admin',
     description: 'Provide exactly one of username or email',
   })
   @IsOptional()
@@ -20,14 +14,13 @@ export class LoginDto {
   username?: string;
 
   @ApiPropertyOptional({
-    example: 'admin@teamorbit.local',
     description: 'Alternative to username',
   })
   @IsOptional()
   @IsEmail()
   email?: string;
 
-  @ApiProperty({ example: 'password123' })
+  @ApiProperty()
   @IsString()
   @MinLength(6)
   password: string;
@@ -73,10 +66,13 @@ export class UpdateProfileDto {
   @IsEmail()
   email?: string | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Custom avatar URL; null restores the default animal avatar.',
+  })
   @IsOptional()
-  @ValidateIf((_, value) => value !== null)
-  @IsString()
+  @MediaInput()
   avatarUrl?: string | null;
 }
 

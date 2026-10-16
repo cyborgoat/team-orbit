@@ -1,12 +1,25 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { queryKeys } from '@/lib/query-keys'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ApiError, api, getToken, setToken, type User } from '@/lib/utils'
+import { ApiError, orbit, type User } from '@/lib/api'
+import { getToken, setToken } from '@/lib/session'
 
 type AuthContextValue = {
   user: User | null
   token: string | null
   loading: boolean
-  login: (identifier: string, password: string, method?: 'username' | 'email') => Promise<void>
+  login: (
+    identifier: string,
+    password: string,
+    method?: 'username' | 'email',
+  ) => Promise<void>
   register: (payload: {
     username: string
     fullName: string
@@ -24,16 +37,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const qc = useQueryClient()
   const [token, setTokenState] = useState<string | null>(getToken())
   const profile = useQuery({
-    queryKey: ['auth-user', token],
-    queryFn: ({ signal }) => api<User>('/auth/me', { signal }),
+    queryKey: queryKeys.profile(token),
+    queryFn: ({ signal }) => orbit.auth.me({ signal }),
     enabled: !!token,
     refetchInterval: 30_000,
     refetchOnWindowFocus: 'always',
     retry: false,
   })
-  const user = token ? profile.data ?? null : null
+  const user = token ? (profile.data ?? null) : null
   const loading = !!token && profile.isPending
-  const setUser = useCallback((next: User | null) => { qc.setQueryData(['auth-user', token], next) }, [qc, token])
+  const setUser = useCallback(
+    (next: User | null) => {
+      qc.setQueryData(queryKeys.profile(token), next)
+    },
+    [qc, token],
+  )
   const { refetch } = profile
 
   useEffect(() => {
@@ -42,14 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Synchronize the local session with an authentication failure from the API.
       // oxlint-disable-next-line react/set-state-in-effect
       setTokenState(null)
-      qc.removeQueries({ queryKey: ['auth-user'] })
+      qc.clear()
     }
   }, [profile.error, qc])
 
   useEffect(() => {
     if (user?.role !== 'ADMIN' && user?.role !== 'SUPERUSER') {
-      void qc.cancelQueries({ queryKey: ['users'] })
-      qc.removeQueries({ queryKey: ['users'] })
+      void qc.cancelQueries({ queryKey: queryKeys.users })
+      qc.removeQueries({ queryKey: queryKeys.users })
     }
   }, [user?.role, qc])
 
@@ -64,24 +82,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (result.error) throw result.error
       },
       async login(identifier, password, method = 'username') {
-        const res = await api<{ accessToken: string; user: User }>(
-          '/auth/login',
-          {
-            method: 'POST',
-            body: JSON.stringify({ [method]: identifier.trim(), password }),
-          },
-        )
+        const res = await orbit.auth.login(identifier.trim(), password, method)
+        qc.clear()
+        orbit.setToken(undefined)
         setToken(res.accessToken)
         setTokenState(res.accessToken)
-        qc.setQueryData(['auth-user', res.accessToken], res.user)
+        qc.setQueryData(queryKeys.profile(res.accessToken), res.user)
       },
       async register(payload) {
-        await api('/auth/register', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
+        await orbit.auth.register(payload)
       },
       logout() {
+        orbit.setToken(undefined)
         setToken(null)
         setTokenState(null)
         qc.clear()
